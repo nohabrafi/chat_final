@@ -56,4 +56,4 @@ io.on("connection", (socket) => {
     })
 });
 
-Mára: socket.io authentication valahogy
+// Mára: socket.io authentication valahogy valahogy
