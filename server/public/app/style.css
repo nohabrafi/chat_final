@@ -1,0 +1,119 @@
+body {
+    background-image: url('chatbg.jpg');
+}
+
+div.sign-out-field {
+    text-align: center;
+}
+
+#curr-user {
+    font-size: 25px;
+    border: solid 2px black;
+    width: 200px;
+    background: #ffae00;
+}
+
+#sign-out-button {
+    display: inline-block;
+    padding: 0.35em 1.2em;
+    border: 0.1em solid #ff0000;
+    margin: 0 0.3em 0.3em 0;
+    border-radius: 0.12em;
+    box-sizing: border-box;
+    text-decoration: none;
+    font-family: 'Roboto', sans-serif;
+    font-weight: 300;
+    color: #ff0000;
+    text-align: center;
+    transition: all 0.2s;
+}
+
+#sign-out-button:hover {
+    color: #000000;
+    background-color: #ff0000;
+}
+
+#sentAt-style {
+    font-family: Verdana, Geneva, Tahoma, sans-serif;
+    font-size: small;
+    font-style: italic;
+}
+
+#message-style {
+    font-size: 25px;
+}
+
+#username-style {
+    font-size: 20px;
+    font-weight: bold;
+}
+
+#kerekegesz {
+    width: 700px;
+    height: 500px;
+    margin-left: auto;
+    margin-right: auto;
+    margin-bottom: auto;
+}
+
+#message-holder {
+    width: auto;
+    height: 100%;
+    margin-top: 100px;
+    overflow: scroll;
+    position: relative;
+    border: 5px solid rgb(3, 95, 201);
+    background-color: #fde88886;
+    overflow-x: hidden;
+}
+
+#form {
+    background: rgb(3, 95, 201);
+    padding: 0.25rem;
+    display: flex;
+    height: 3rem;
+    box-sizing: border-box;
+    backdrop-filter: blur(10px);
+    margin-top: auto;
+    margin-left: auto;
+    margin-right: auto;
+    margin-bottom: auto;
+    width: auto;
+}
+
+#input {
+    border: none;
+    padding: 0 1rem;
+    flex-grow: 1;
+    border-radius: 2rem;
+    margin: 0.25rem;
+}
+
+#input:focus {
+    outline: none;
+}
+
+#form>button {
+    background: rgb(120, 88, 236);
+    border: none;
+    padding: 0 1rem;
+    margin: 0.25rem;
+    border-radius: 3px;
+    outline: none;
+    color: #fff;
+}
+
+#messages {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+}
+
+#messages>li {
+    padding: 0.5rem 1rem;
+    background: #ddd7b2c9;
+}
+
+#messages>li:nth-child(odd) {
+    background: #4d91b8da;
+}

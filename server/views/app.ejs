@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat</title>
+    <link rel="stylesheet" href="http://localhost:3000/app/style.css">
+    <script defer src="http://localhost:3000/socket.io/socket.io.js"></script>
+    <script defer src="app/app.js"></script>
+    <!-- If the defer attribute is set, it specifies that the script is downloaded
+     in parallel to parsing the page, and executed after the page has finished parsing. -->
+
+</head>
+
+<body>
+    <p id="curr-user"> logged in: ..</p>
+    <div id="kerekegesz">
+        <div id="message-holder">
+            <ul id="messages"></ul>
+        </div>
+        <form id="form">
+            <input id="input" autocomplete="off" /><button>Send</button>
+        </form>
+        <div id="sign-out-field">
+            <button id="sign-out-button" onclick="logOutUser()">Log Out</button>
+        </div>
+    </div>
+
+</body>
+
+</html>

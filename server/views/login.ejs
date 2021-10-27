@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LOGIN to Chat</title>
+    <style>
+        #sign-up-button {
+            font-size: 25px;
+        }
+        
+        body {
+            background-image: url('http://localhost:8000/login_background');
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+            background-size: cover;
+        }
+        
+        form {
+            display: table;
+        }
+        
+        div#login-holder {
+            display: flex;
+            justify-content: center;
+            flex-direction: column;
+            width: 500px;
+            height: 500px;
+            text-align: center;
+            margin-top: 10%;
+            margin-left: auto;
+            margin-right: auto;
+            margin-bottom: 20%;
+            background: linear-gradient(66deg, rgba(0, 202, 255, 1) 0%, rgba(0, 151, 255, 1) 28%, rgba(0, 86, 255, 1) 57%, rgba(141, 0, 255, 1) 86%);
+            align-items: center;
+            border-radius: 30px;
+        }
+        
+        label,
+        input {
+            margin-bottom: 10px;
+            font-size: 25px;
+        }
+        
+        label {
+            padding-right: 10px;
+            background: radial-gradient(circle, rgb(192, 3, 3) 0%, rgb(238, 143, 0) 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-size: 30px;
+            font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="login-holder">
+        <form target="votar" onsubmit="sendLogin()" id="login-form">
+            <div>
+                <label for="username">Enter your username:</label>
+                <input type="text" name="username" id="username" required>
+            </div>
+            <div>
+                <label for="password">Enter your password:</label>
+                <input type="password" name="password" id="password" required>
+            </div>
+            <div>
+                <input type="submit" value="Lolgin!">
+            </div>
+        </form>
+        <div>
+            <label for="sign-up-button">Don't have an account? Signup then:</label>
+            <br>
+            <button id="sign-up-button" name="sign-up-button" onclick="toSignup()">Signup</button>
+        </div>
+        <iframe name="votar" style="display:none;"></iframe>
+    </div>
+
+
+
+    <script>
+        const toSignup = async() => {
+
+            window.location.href = 'http://localhost:8000/signup_page'
+        }
+
+        const sendLogin = async() => {
+
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            // console.log(username, password)
+            try {
+                let response = await fetch('http://localhost:8000/user_login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        username: username,
+                        password: password
+                    })
+                });
+
+                var result = await response.json();
+                // kell az await mert ha nincns akkor egybol ki akarja irni, de a promise még nem ért vissza (pending)
+                // ezt fontos megerteni. ez az async lényege. a neten is azt irák ezekhez a kérdésekhez hogy előbb megkell érteni az asyncet!
+                var jsonResult = JSON.parse(result);
+                console.log("back from server: " + jsonResult.username);
+                sessionStorage.setItem("username", jsonResult.username);
+                // console.log("Inhalt des sessionStorage ist gleich: " + sessionStorage.getItem("user_id"));
+                window.location.href = "http://localhost:8000/chat_page";
+
+            } catch (error) {
+
+                console.log(error);
+            }
+
+        }
+    </script>
+</body>
+
+<!-- fetch('http://localhost:8000/user_authentification', {
+    method: 'POST',
+    headers: {
+        'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+        username: username,
+        password: password
+    })
+}).then(res => { // vissza adja a response-t ami a server.js-ben a post-requestnel megvan hatarozva általam
+    return res.json();
+    redirect();
+}).then(data => {
+
+    console.log(data);
+})
+.catch(error => console.log(error)); -->
+
+</html>

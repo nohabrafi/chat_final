@@ -1,0 +1,122 @@
+<!-- 
+
+    HA ERROR 405 (not Allowed) valószínüleg a cim rosszul van megadva!
+
+
+
+ -->
+
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SIGNUP to Chat</title>
+    <style>
+        body {
+            background-image: url('http://localhost:8000/login_background');
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+            background-size: cover;
+        }
+        
+        form {
+            display: table;
+        }
+        
+        div#login-holder {
+            display: flex;
+            justify-content: center;
+            flex-direction: column;
+            width: 500px;
+            height: 400px;
+            text-align: center;
+            margin-top: 10%;
+            margin-left: auto;
+            margin-right: auto;
+            margin-bottom: 20%;
+            background: linear-gradient(66deg, rgba(0, 202, 255, 1) 0%, rgba(0, 151, 255, 1) 28%, rgb(9, 128, 226) 57%, rgb(128, 56, 243) 86%);
+            align-items: center;
+            border-radius: 30px;
+        }
+        
+        label,
+        input {
+            display: table-cell;
+            margin-bottom: 10px;
+            font-size: 25px;
+        }
+        
+        label {
+            padding-right: 10px;
+            font-size: 30px;
+            font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="login-holder">
+        <form target="votar" id="signup-form" onsubmit="sendSignup()">
+            <div>
+                <label for="newUsername">Enter your username:</label>
+                <input type="text" name="newUsername" id="newUsername" required>
+            </div>
+            <div>
+                <label for="email">Enter your email address:</label>
+                <input type="text" name="email" id="email" required>
+            </div>
+            <div>
+                <label for="password">Enter your password:</label>
+                <input type="password" name="password" id="password" minlength="8" required>
+            </div>
+            <div>
+                <label for="re-password">Enter your password again:</label>
+                <input type="password" name="re-password" id="re-password" required>
+            </div>
+            <div>
+                <input type="submit" value="Signup!" on>
+            </div>
+        </form>
+        <iframe name="votar" style="display:none;"></iframe>
+    </div>
+
+    <script>
+        const sendSignup = async() => {
+
+            const newUsername = document.getElementById('newUsername').value;
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const re_passaword = document.getElementById('re-password').value;
+
+            if (password === re_passaword) {
+
+                try {
+                    let response = await fetch('http://localhost:8000/user_signup', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            newUsername: newUsername,
+                            email: email,
+                            password: password
+                        })
+                    });
+                    var result = await response.json();
+                    console.log(result);
+                    window.location.href = "http://localhost:8000/login_page";
+                } catch (error) {
+                    console.log(error)
+                }
+            } else {
+                alert('Passwords do not match!')
+            }
+        }
+    </script>
+</body>
+
+</html>
