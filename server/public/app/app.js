@@ -1,15 +1,18 @@
 var messages = document.getElementById('messages');
 var form = document.getElementById('form');
 var input = document.getElementById('input');
-var iUseTheDB = false;
+var printUsername = document.getElementById('curr-user');
+
+var user = prompt("Enter your username:");
+printUsername.innerHTML = `${user} is logged in`;
+window.localStorage.setItem("user", user);
 
 const socket = io("http://localhost:3000");
 
-/*####### socket.io #######*/
-
 socket.on("connect", () => {
-    console.log(`you with id ${socket.id} connected.`);
-    appendMessageSIO(`you with id ${socket.id} connected.`);
+    // console.log(`${user} with id ${socket.id} connected.`);
+    appendMessageSIO(`you(${user}) with id ${socket.id} connected.`);
+    socket.emit("username", user);
 });
 
 socket.on("disconnect", () => {
@@ -43,6 +46,8 @@ form.addEventListener('submit', function(e) {
 });
 
 
+
+
 function appendMessageSIO(message) {
 
     let theMessage = message + "----" + new Date(Date.now()).toString().substring(0, 24);
@@ -55,7 +60,6 @@ function appendMessageSIO(message) {
 
 }
 
-
 document.addEventListener('keydown', e => {
     if (e.target.matches('input')) return;
 
@@ -67,7 +71,8 @@ document.addEventListener('keydown', e => {
 
 
 
-/*####### socket.io #######*/
+
+
 
 
 
