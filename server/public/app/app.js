@@ -2,60 +2,76 @@ var messages = document.getElementById('messages');
 var form = document.getElementById('form');
 var input = document.getElementById('input');
 var printUsername = document.getElementById('curr-user');
+var logOutButton = document.getElementById('log-out-button');
 
-var user = prompt("Enter your username:");
-printUsername.innerHTML = `${user} is logged in`;
-window.localStorage.setItem("user", user);
+var username = prompt("Enter your username:");
+printUsername.innerHTML = `${username} is logged in`;
+// window.sessionStorage.setItem("user", user);
 
 const socket = io("http://localhost:3000");
 
 socket.on("connect", () => {
     // console.log(`${user} with id ${socket.id} connected.`);
-    appendMessageSIO(`you(${user}) with id ${socket.id} connected.`);
-    socket.emit("add-username", user);
+    appendTechnicalMsg(`you with name ${username} connected.`);
+    socket.emit("add-username", username);
 });
 
 socket.on("disconnect", () => {
     console.log(`you disconnected.`)
-    appendMessageSIO(`you disconnected.`);
-    socket.emit("")
+    appendTechnicalMsg(`you disconnected.`);
+    // socket.emit("remove-username", username);
 });
 
-socket.on("receive-message", message => { // aztán figyelünk a válaszra  szervertől. ha ez a válasz megegyezik az eventünkel amit akarunk akkor
+socket.on("receive-message", (user, message) => { // aztán figyelünk a válaszra  szervertől. ha ez a válasz megegyezik az eventünkel amit akarunk akkor
     // csinaljuk amit kell
-    appendMessageSIO(message);
+    appendMessage(user, message);
 });
 
 socket.on("user-connected", connectMsg => {
-    appendMessageSIO(connectMsg);
+    appendTechnicalMsg(connectMsg);
 });
 
 socket.on("user-disconnected", disconnectMsg => {
-    appendMessageSIO(disconnectMsg);
+    appendTechnicalMsg(disconnectMsg);
 });
 
-form.addEventListener('submit', function(e) {
-    e.preventDefault();
+form.addEventListener('submit', (e) => {
+    e.preventDefault(); // prevent form from refreshing page
+
     if (input.value) {
-
-        socket.emit("send-message", input.value); // 1. eloszor emit elünk valamit egy custom event névvel a serverre
-
-        appendMessageSIO(input.value);
-
+        socket.emit("send-message", username, input.value); // 1. eloszor emit elünk valamit egy custom event névvel a serverre
+        appendMessage(username, input.value);
         input.value = "";
     }
 });
 
+logOutButton.addEventListener('click', () => {
+    socket.disconnect(username);
+})
 
-
-
-function appendMessageSIO(message) {
-
-    let theMessage = message + "----" + new Date(Date.now()).toString().substring(0, 24);
+const appendTechnicalMsg = (message) => {
 
     let messageHolder = document.getElementById("message-holder");
     let item = document.createElement('li');
-    item.innerHTML = theMessage;
+    item.innerHTML = message;
+    messages.appendChild(item);
+    messageHolder.scrollTop = messageHolder.scrollHeight;
+
+}
+
+
+const appendMessage = (user, message) => {
+
+    // let theMessage = message + "----" + new Date(Date.now()).toString().substring(0, 24);
+
+    let messageHolder = document.getElementById("message-holder");
+    let item = document.createElement('li');
+
+    if (username == user) {
+        item.style.textAlign = 'right';
+    }
+
+    item.innerHTML = `${user}-> ${message}`;
     messages.appendChild(item);
     messageHolder.scrollTop = messageHolder.scrollHeight;
 
@@ -63,7 +79,6 @@ function appendMessageSIO(message) {
 
 document.addEventListener('keydown', e => {
     if (e.target.matches('input')) return;
-
     if (e.key === 'c') socket.connect();
     if (e.key === 'd') socket.disconnect();
 });

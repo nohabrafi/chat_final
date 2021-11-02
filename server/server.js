@@ -37,9 +37,10 @@ app.get('/', (req, res) => {
 
 io.on("connection", (socket) => {
 
-    socket.on("add-username", (user) => {
+    socket.on("add-username", user => {
         onlineUsers.push({
-            username: user
+            username: user,
+            socketID: socket.id
             // expires: Date.now() + 60 * 1000
         });
 
@@ -47,28 +48,41 @@ io.on("connection", (socket) => {
             console.log(element);
         });
 
-        let connectMsg = `${onlineUsers[onlineUsers.length-1].username} with socket id ${socket.id} connected`;
+        let connectMsg = `${user} connected`;
         // just console log it on the server
         console.log(connectMsg);
         // upon the CONNECTION of a socket the server broadcasts a message to the other connected sockets to let them know
         socket.broadcast.emit("user-connected", connectMsg);
     });
 
-    socket.on("disconnect", (reason) => {
+    socket.on("disconnect", reason => {
+
+        console.log("before");
+        onlineUsers.forEach(element => {
+            console.log(element);
+        });
+
+        let disconnectedUser = onlineUsers.find(userObj => userObj.socketID == socket.id); // find the disconnected user by socket id
+        let userIndex = onlineUsers.indexOf(disconnectedUser); // get the index of the userobject
+        onlineUsers.splice(userIndex, 1); // remove from the onlineUsers array the disconnected user
+
+        console.log("after");
+        onlineUsers.forEach(element => {
+            console.log(element);
+        });
+
         // the message to display in a variable because it is used more than once
-        let disconnectMsg = `${onlineUsers[onlineUsers.length-1].username} with socket id ${socket.id} disconnected due to "${reason}"`;
+        var disconnectMsg = `${disconnectedUser.username} disconnected due to "${reason}"`;
         // just console log it on the server
         console.log(disconnectMsg);
         // upon the DISCONNECTION of a socket the server broadcasts a message to the other connected sockets to let them know
         socket.broadcast.emit("user-disconnected", disconnectMsg);
+
     });
 
-    socket.on("send-message", message => { // 2. aztan az eventünk a custom event névvel bejön a serverre és eldöntjuk hog ymi legyen vele
-        socket.broadcast.emit("receive-message", message); // az lesz vele hogy mivel ez egy egy chat üzenet kiküldjuk akinek kell (itt mindenkinek)
+    socket.on("send-message", (user, message) => { // 2. aztan az eventünk a custom event névvel bejön a serverre és eldöntjuk hog ymi legyen vele
+        socket.broadcast.emit("receive-message", user, message); // az lesz vele hogy mivel ez egy egy chat üzenet kiküldjuk akinek kell (itt mindenkinek)
         // itt is egy custom event nevet használunk. a broadcast flaggel kikuldi mindenkinek kivéve a feladónak
     });
 
-
 });
-
-// Mára: socket.io authentication valahogy valahogy
