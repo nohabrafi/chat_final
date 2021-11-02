@@ -12,12 +12,13 @@ const socket = io("http://localhost:3000");
 socket.on("connect", () => {
     // console.log(`${user} with id ${socket.id} connected.`);
     appendMessageSIO(`you(${user}) with id ${socket.id} connected.`);
-    socket.emit("username", user);
+    socket.emit("add-username", user);
 });
 
 socket.on("disconnect", () => {
     console.log(`you disconnected.`)
     appendMessageSIO(`you disconnected.`);
+    socket.emit("")
 });
 
 socket.on("receive-message", message => { // aztán figyelünk a válaszra  szervertől. ha ez a válasz megegyezik az eventünkel amit akarunk akkor

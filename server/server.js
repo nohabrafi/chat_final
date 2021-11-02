@@ -37,7 +37,7 @@ app.get('/', (req, res) => {
 
 io.on("connection", (socket) => {
 
-    socket.on("username", (user) => {
+    socket.on("add-username", (user) => {
         onlineUsers.push({
             username: user
             // expires: Date.now() + 60 * 1000
