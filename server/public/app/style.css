@@ -1,5 +1,8 @@
 body {
     background-image: url('chatbg.jpg');
+    /* background-position: center; */
+    /* background-repeat: no-repeat; */
+    background-size: cover;
 }
 
 div.sign-out-field {
