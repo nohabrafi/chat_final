@@ -49,6 +49,7 @@ div.sign-out-field {
 }
 
 #kerekegesz {
+
     width: 700px;
     height: 500px;
     margin-left: auto;
@@ -57,6 +58,7 @@ div.sign-out-field {
 }
 
 #message-holder {
+
     width: auto;
     height: 100%;
     margin-top: 100px;
@@ -116,4 +118,17 @@ div.sign-out-field {
 
 #messages>li:nth-child(odd) {
     background: #4d91b8da;
+}
+
+#all-users {
+    float: left;
+    height: 500px;
+    width: 200px;
+    overflow: scroll;
+    overflow-x: hidden;
+    background-color: #ffae00;
+}
+
+#users-list {
+    list-style-type: none;
 }

@@ -52,8 +52,11 @@ io.on("connection", (socket) => {
         // just console log it on the server
         console.log(connectMsg);
         // upon the CONNECTION of a socket the server broadcasts a message to the other connected sockets to let them know
-        socket.broadcast.emit("user-connected", connectMsg);
+        socket.broadcast.emit("user-connected", onlineUsers, connectMsg);
+        socket.emit("broadcastUserList", onlineUsers);
     });
+
+    // socket.emit("broadcastUserList", onlineUsers);
 
     socket.on("disconnect", reason => {
 

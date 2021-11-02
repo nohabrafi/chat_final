@@ -1,8 +1,12 @@
 var messages = document.getElementById('messages');
+var messageHolder = document.getElementById("message-holder");
 var form = document.getElementById('form');
 var input = document.getElementById('input');
 var printUsername = document.getElementById('curr-user');
 var logOutButton = document.getElementById('log-out-button');
+var userListDOM = document.getElementById('users-list');
+var listTitle = document.getElementById('list-title');
+
 
 var username = prompt("Enter your username:");
 printUsername.innerHTML = `${username} is logged in`;
@@ -16,6 +20,8 @@ socket.on("connect", () => {
     socket.emit("add-username", username);
 });
 
+socket.on("broadcastUserList", (userList) => fillUserList(userList));
+
 socket.on("disconnect", () => {
     console.log(`you disconnected.`)
     appendTechnicalMsg(`you disconnected.`);
@@ -27,7 +33,8 @@ socket.on("receive-message", (user, message) => { // aztán figyelünk a válasz
     appendMessage(user, message);
 });
 
-socket.on("user-connected", connectMsg => {
+socket.on("user-connected", (userList, connectMsg) => {
+    fillUserList(userList);
     appendTechnicalMsg(connectMsg);
 });
 
@@ -51,7 +58,6 @@ logOutButton.addEventListener('click', () => {
 
 const appendTechnicalMsg = (message) => {
 
-    let messageHolder = document.getElementById("message-holder");
     let item = document.createElement('li');
     item.innerHTML = message;
     messages.appendChild(item);
@@ -59,21 +65,39 @@ const appendTechnicalMsg = (message) => {
 
 }
 
-
 const appendMessage = (user, message) => {
 
     // let theMessage = message + "----" + new Date(Date.now()).toString().substring(0, 24);
-
-    let messageHolder = document.getElementById("message-holder");
     let item = document.createElement('li');
-
     if (username == user) {
         item.style.textAlign = 'right';
+        item.innerHTML = `YOU-> ${message}`;
+    } else {
+        item.innerHTML = `${user}-> ${message}`;
     }
 
-    item.innerHTML = `${user}-> ${message}`;
     messages.appendChild(item);
     messageHolder.scrollTop = messageHolder.scrollHeight;
+
+}
+
+const fillUserList = (allUsers) => {
+
+    listTitle.innerHTML = `Every user on the server (total ${allUsers.length}): `
+    allUsers.forEach(user => console.log(user));
+
+    userListDOM.innerHTML = '';
+
+    allUsers.forEach(user => {
+        let item = document.createElement('li');
+        if (username != user.username) {
+            item.innerHTML = user.username;
+        } else {
+            item.innerHTML = `${user.username}(thats YOU)`;
+        }
+
+        userListDOM.appendChild(item);
+    });
 
 }
 
