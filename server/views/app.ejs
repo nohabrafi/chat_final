@@ -12,16 +12,68 @@
     <!-- If the defer attribute is set, it specifies that the script is downloaded
      in parallel to parsing the page, and executed after the page has finished parsing. -->
 
+    <style>
+        * {
+            box-sizing: border-box
+        }
+
+        body {
+            font-family: "Lato", sans-serif;
+        }
+
+        /* Style the tab */
+        .users-tab {
+            float: left;
+            border: 1px solid #ccc;
+            background-color: #f1f1f1;
+            width: 10%;
+            height: 300px;
+        }
+
+        /* Style the buttons inside the tab */
+        .users-tab button {
+            display: block;
+            background-color: inherit;
+            color: black;
+            padding: 22px 16px;
+            width: 100%;
+            border: none;
+            outline: none;
+            text-align: left;
+            cursor: pointer;
+            transition: 0.3s;
+            font-size: 17px;
+        }
+
+        /* Change background color of buttons on hover */
+        .users-tab button:hover {
+            background-color: #ddd;
+        }
+
+        /* Create an active/current "tab button" class */
+        .users-tab button.active {
+            background-color: #ccc;
+        }
+
+        /* Style the tab content */
+        .tabcontent {
+            float: left;
+            padding: 0px 12px;
+            border: 1px solid #ccc;
+            width: 90%;
+            border-left: none;
+            height: 300px;
+        }
+    </style>
 </head>
 
 <body>
     <p id="curr-user"> logged in: ..</p>
     <div id="all-users">
-        <label for="users-list" id="list-title">Every other user on the server: </label>
+        <label for="users-list" id="list-title">Number of users on the server: </label>
         <ul id="users-list" name="users-list"></ul>
     </div>
     <div id="kerekegesz">
-
         <div id="message-holder">
             <ul id="messages"></ul>
         </div>
@@ -30,6 +82,18 @@
         </form>
         <div id="log-out-field">
             <button id="log-out-button">Log Out</button>
+            <button id="log-in-button">Log In</button>
+        </div>
+    </div>
+
+
+    <div id="all-users-tabs" class="users-tab">
+        <button class="tablinks" id="lobby" onclick="openUserChat(event, 'lobby')">Lobby</button>
+    </div>
+    <div id="all-tab-contents" class="">
+        <div id="lobby" class="tabcontent">
+            <h3>Send message to everyone</h3>
+            <ul id="messages"></ul>
         </div>
     </div>
 

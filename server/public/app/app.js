@@ -4,15 +4,17 @@ var form = document.getElementById('form');
 var input = document.getElementById('input');
 var printUsername = document.getElementById('curr-user');
 var logOutButton = document.getElementById('log-out-button');
-var userListDOM = document.getElementById('users-list');
+var logInButton = document.getElementById('log-in-button');
+var userTabList = document.getElementById('all-users-tabs');
+var allTabContents = document.getElementById("all-tab-contents");
 var listTitle = document.getElementById('list-title');
+
+var socket = io("http://localhost:3000");
 
 
 var username = prompt("Enter your username:");
 printUsername.innerHTML = `${username} is logged in`;
-// window.sessionStorage.setItem("user", user);
 
-const socket = io("http://localhost:3000");
 
 socket.on("connect", () => {
     // console.log(`${user} with id ${socket.id} connected.`);
@@ -38,23 +40,11 @@ socket.on("user-connected", (userList, connectMsg) => {
     appendTechnicalMsg(connectMsg);
 });
 
-socket.on("user-disconnected", disconnectMsg => {
+socket.on("user-disconnected", (userList, disconnectMsg) => {
+    fillUserList(userList);
     appendTechnicalMsg(disconnectMsg);
 });
 
-form.addEventListener('submit', (e) => {
-    e.preventDefault(); // prevent form from refreshing page
-
-    if (input.value) {
-        socket.emit("send-message", username, input.value); // 1. eloszor emit elünk valamit egy custom event névvel a serverre
-        appendMessage(username, input.value);
-        input.value = "";
-    }
-});
-
-logOutButton.addEventListener('click', () => {
-    socket.disconnect(username);
-})
 
 const appendTechnicalMsg = (message) => {
 
@@ -83,23 +73,90 @@ const appendMessage = (user, message) => {
 
 const fillUserList = (allUsers) => {
 
-    listTitle.innerHTML = `Every user on the server (total ${allUsers.length}): `
-    allUsers.forEach(user => console.log(user));
+    // show the count of all online users
+    listTitle.innerHTML = `Number of users on the server: ${allUsers.length}`;
 
-    userListDOM.innerHTML = '';
-
+    // the user list is refreshed by first deleting it and then recreating it
+    removeAllChildNodesExceptLobby(userTabList);
+    removeAllChildNodesExceptLobby(allTabContents);
+    // it is recreated by looping throug the users array which comes from the server
     allUsers.forEach(user => {
-        let item = document.createElement('li');
-        if (username != user.username) {
-            item.innerHTML = user.username;
-        } else {
-            item.innerHTML = `${user.username}(thats YOU)`;
+
+        if (user.username != username) { // do not list the user where this script is running
+            let btn = document.createElement('button'); // every user will be a button; so create it
+            btn.innerHTML = user.username; // set the button text to the username
+            btn.className = "tablinks"; // set its classname
+
+            btn.addEventListener("click", () => { // adding an event listener for click events and than calling a function
+                openUserChat(event, user.username); // this function changes which user is shown
+            });
+            userTabList.appendChild(btn); // add the users(buttons) to the list
+
+            // creation of the tab contents
+            let h3 = document.createElement('h3'); // create an h3 for some info
+            h3.innerHTML = `Send message to ${user.username}`; // set some info in the h3
+
+            let ul = document.createElement('ul'); //create the unordered list for the messages 
+            ul.id = "messages"; // give it the id "messages"
+
+            let div = document.createElement('div'); // create the div that holds all of this
+            div.id = user.username; // the id of the div is the username which it belongs to 
+            div.className = "tabcontent"; // set its class name
+            div.appendChild(h3); // append the h3 
+            div.appendChild(ul); // and the ul to the div
+
+            allTabContents.appendChild(div); // put the tabs inside the div that holds all of the user messages
         }
 
-        userListDOM.appendChild(item);
     });
-
 }
+
+function openUserChat(evt, user) {
+
+    // console.log(valami);
+    var i, tabcontent, tablinks;
+    tabcontent = document.getElementsByClassName("tabcontent");
+    for (i = 0; i < tabcontent.length; i++) {
+        tabcontent[i].style.display = "none";
+    }
+    tablinks = document.getElementsByClassName("tablinks");
+    for (i = 0; i < tablinks.length; i++) {
+        tablinks[i].className = tablinks[i].className.replace(" active", "");
+    }
+    document.getElementById(user).style.display = "block";
+    evt.currentTarget.className += " active";
+}
+
+const removeAllChildNodesExceptLobby = (parent) => {
+    while (parent.lastChild.id !== "lobby") {
+        parent.removeChild(parent.lastChild);
+    }
+}
+
+const removeAllChildNodes = (parent) => {
+    while (parent.firstChild) {
+        parent.removeChild(parent.firstChild);
+    }
+}
+
+form.addEventListener('submit', (e) => {
+    e.preventDefault(); // prevent form from refreshing page
+
+    if (input.value) {
+        socket.emit("send-message", username, input.value); // 1. eloszor emit elünk valamit egy custom event névvel a serverre
+        appendMessage(username, input.value);
+        input.value = "";
+    }
+});
+
+logOutButton.addEventListener('click', () => {
+    socket.disconnect();
+});
+
+logInButton.addEventListener('click', () => {
+    socket.connect();
+});
+
 
 document.addEventListener('keydown', e => {
     if (e.target.matches('input')) return;

@@ -54,10 +54,10 @@ div.sign-out-field {
 #kerekegesz {
 
     width: 700px;
-    height: 500px;
+    height: 100px;
     margin-left: auto;
     margin-right: auto;
-    margin-bottom: auto;
+    margin-bottom: 200px;
 }
 
 #message-holder {
@@ -125,10 +125,8 @@ div.sign-out-field {
 
 #all-users {
     float: left;
-    height: 500px;
-    width: 200px;
-    overflow: scroll;
-    overflow-x: hidden;
+    height: 20px;
+    width: 300px;
     background-color: #ffae00;
 }
 

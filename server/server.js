@@ -52,8 +52,8 @@ io.on("connection", (socket) => {
         // just console log it on the server
         console.log(connectMsg);
         // upon the CONNECTION of a socket the server broadcasts a message to the other connected sockets to let them know
-        socket.broadcast.emit("user-connected", onlineUsers, connectMsg);
-        socket.emit("broadcastUserList", onlineUsers);
+        socket.broadcast.emit("user-connected", onlineUsers, connectMsg); // broadcast to everyone else that someone connected and the array of users
+        socket.emit("broadcastUserList", onlineUsers); // emit to the latest connected socket the list of online users
     });
 
     // socket.emit("broadcastUserList", onlineUsers);
@@ -79,7 +79,7 @@ io.on("connection", (socket) => {
         // just console log it on the server
         console.log(disconnectMsg);
         // upon the DISCONNECTION of a socket the server broadcasts a message to the other connected sockets to let them know
-        socket.broadcast.emit("user-disconnected", disconnectMsg);
+        socket.broadcast.emit("user-disconnected", onlineUsers, disconnectMsg);
 
     });
 
