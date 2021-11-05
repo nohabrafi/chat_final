@@ -38,10 +38,10 @@ app.get('/', (req, res) => {
 io.on("connection", (socket) => {
 
     socket.on("add-username", user => {
+
         onlineUsers.push({
             username: user,
             socketID: socket.id
-            // expires: Date.now() + 60 * 1000
         });
 
         onlineUsers.forEach(element => {
@@ -49,37 +49,41 @@ io.on("connection", (socket) => {
         });
 
         let connectMsg = `${user} connected`;
+
         // just console log it on the server
         console.log(connectMsg);
-        // upon the CONNECTION of a socket the server broadcasts a message to the other connected sockets to let them know
-        socket.broadcast.emit("user-connected", onlineUsers, connectMsg); // broadcast to everyone else that someone connected and the array of users
-        socket.emit("broadcastUserList", onlineUsers); // emit to the latest connected socket the list of online users
-    });
 
-    // socket.emit("broadcastUserList", onlineUsers);
+        // emit to the latest connected socket the list of online users
+        socket.emit("broadcastUserList", onlineUsers);
+
+        // upon the CONNECTION of a socket the server broadcasts a message to the other connected sockets to let them know
+        socket.broadcast.emit("user-connected", onlineUsers[onlineUsers.length - 1], onlineUsers.length, connectMsg); // broadcast to everyone else that someone connected and the array of users
+
+    });
 
     socket.on("disconnect", reason => {
 
-        console.log("before");
-        onlineUsers.forEach(element => {
-            console.log(element);
-        });
-
+        var disconnectMsg;
         let disconnectedUser = onlineUsers.find(userObj => userObj.socketID == socket.id); // find the disconnected user by socket id
-        let userIndex = onlineUsers.indexOf(disconnectedUser); // get the index of the userobject
-        onlineUsers.splice(userIndex, 1); // remove from the onlineUsers array the disconnected user
 
-        console.log("after");
+        if (disconnectedUser == undefined) { // if undefined than not found. this happens only when the server restarts
+            disconnectMsg = `someone disconnected due to "${reason}"`;
+            console.log("some problem that i dont understand yet :P");
+        } else {
+            let userIndex = onlineUsers.indexOf(disconnectedUser); // get the index of the userobject
+            onlineUsers.splice(userIndex, 1); // remove from the onlineUsers array the disconnected user
+            disconnectMsg = `${disconnectedUser.username} disconnected due to "${reason}"`;
+        }
+
+        // console.log("after");
         onlineUsers.forEach(element => {
             console.log(element);
         });
 
-        // the message to display in a variable because it is used more than once
-        var disconnectMsg = `${disconnectedUser.username} disconnected due to "${reason}"`;
-        // just console log it on the server
         console.log(disconnectMsg);
-        // upon the DISCONNECTION of a socket the server broadcasts a message to the other connected sockets to let them know
-        socket.broadcast.emit("user-disconnected", onlineUsers, disconnectMsg);
+        /* upon the DISCONNECTION of a socket the server broadcasts a message, the disconnected user
+         and the new length of the users array to the other connected sockets to let them know */
+        socket.broadcast.emit("user-disconnected", disconnectedUser, onlineUsers.length, disconnectMsg);
 
     });
 
