@@ -10,30 +10,13 @@
     <script defer src="http://localhost:3000/socket.io/socket.io.js"></script>
     <script defer src="app/app.js"></script>
     <!-- If the defer attribute is set, it specifies that the script is downloaded
-     in parallel to parsing the page, and executed after the page has finished parsing. -->
+    in parallel to parsing the page, and executed after the page has finished parsing. -->
 
-    <style>
-
-    </style>
 </head>
 
 <body>
     <p id="current-user" class="nice-yellow">minta jános</p>
     <p id="user-count" class="nice-yellow">Users online</p>
-
-    <!-- <div id="kerekegesz">
-        <div id="message-holder">
-            <ul id="messages"></ul>
-        </div>
-        <!-- <form id="form">
-            <input id="input" autocomplete="off" /><button>Send</button>
-        </form> 
-        <div id="log-out-field">
-            <button id="log-out-button">Log Out</button>
-            <button id="log-in-button">Log In</button>
-        </div>
-    </div> -->
-
 
     <div id="kerekegesz">
         <div id="all-users-tabs" class="users-tabs">
@@ -47,7 +30,7 @@
                 <h3 class="content-heading">Send message to everyone</h3>
 
                 <div class="message-holder">
-                    <ul id="messages-lobby"></ul>
+                    <ul class="messages-ul" id="messages-Lobby"></ul>
                 </div>
 
                 <form class="form" id="form-lobby">

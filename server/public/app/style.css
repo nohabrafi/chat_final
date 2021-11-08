@@ -9,9 +9,6 @@ div.sign-out-field {
     text-align: center;
 }
 
-.name-color {
-    color: rgb(141, 87, 241);
-}
 
 .nice-yellow {
     font-size: 25px;
@@ -118,18 +115,18 @@ form {
     color: #fff;
 }
 
-#messages-lobby {
+.messages-ul {
     list-style-type: none;
     margin: 0;
     padding: 0;
 }
 
-#messages-lobby>li {
+.messages-ul>li {
     padding: 0.5rem 1rem;
     background: #ddd7b2c9;
 }
 
-#messages-lobby>li:nth-child(odd) {
+.messages-ul>li:nth-child(odd) {
     background: #4d91b8da;
 }
 

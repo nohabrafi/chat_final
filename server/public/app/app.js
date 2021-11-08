@@ -1,5 +1,5 @@
 var messages = document.getElementById('messages');
-var messageHolder = document.getElementById("message-holder");
+// var messageHolders = document.getElementsByClassName("message-holder");
 var form = document.getElementById('form');
 var input = document.getElementById('input');
 var currentUser = document.getElementById('current-user');
@@ -14,7 +14,8 @@ var socket = io("http://localhost:3000");
 
 var username = prompt("Enter your username:");
 window.document.title = username;
-currentUser.innerHTML = `user in this tab: <span class="name-color">${username}</span>`;
+currentUser.innerHTML = `user in this tab: <span style="color: rgb(142, 10, 218);">${username}</span>`;
+
 
 socket.on("connect", () => {
     appendTechnicalMsg(`you with name ${username} connected.`);
@@ -32,9 +33,8 @@ socket.on("disconnect", () => {
     changeUserCounter(0);
 });
 
-socket.on("receive-message", (user, message) => { // aztán figyelünk a válaszra  szervertől. ha ez a válasz megegyezik az eventünkel amit akarunk akkor
-    // csinaljuk amit kell
-    appendMessage(user, message);
+socket.on("receive-message", (sender, message, toLobby) => {
+    appendMessageFromONLINEUser(sender, message, toLobby);
 });
 
 socket.on("user-connected", (connectedUser, numberOfUsers, connectMsg) => {
@@ -50,39 +50,66 @@ socket.on("user-disconnected", (disconnectedUser, numberOfUsers, disconnectMsg) 
 });
 
 
+
+
 const changeUserCounter = (numberOfUsers) => {
-    userCount.innerHTML = `Users online: ${numberOfUsers}`;
+    userCount.innerHTML = `Users online: ${numberOfUsers}`; // change the number of users
+}
+
+const scrollToBottom = (scrollElement) => {
+    scrollElement.parentElement.scrollTop = scrollElement.scrollHeight;
 }
 
 const appendTechnicalMsg = (message) => {
 
-    let item = document.createElement('li');
-    item.innerHTML = message;
+    let item = document.createElement('li'); // create list element for message
+    item.innerHTML = message; // set innerHTML to message
 
-    document.querySelector('#messages-lobby').appendChild(item);
-    // messages.appendChild(item);
-    // messageHolder.scrollTop = messageHolder.scrollHeight;
+    let messageHolder = document.querySelector('#messages-Lobby')
+    messageHolder.appendChild(item); // append the message to the list of messages
+    scrollToBottom(messageHolder);
 
 }
 
-const appendMessage = (user, message) => {
+const appendMessageFromLOCALUser = (recipient, message) => {
 
     // let theMessage = message + "----" + new Date(Date.now()).toString().substring(0, 24);
     let item = document.createElement('li');
-    if (username == user) {
-        item.style.textAlign = 'right';
-        item.innerHTML = `YOU-> ${message}`;
-    } else {
-        item.innerHTML = `${user} -> ${message}`;
-    }
+    item.style.textAlign = 'right';
+    item.innerHTML = `YOU-> ${message}`;
 
-    document.querySelector('#messages-lobby').appendChild(item);
-    // messages.appendChild(item);
-    // messageHolder.scrollTop = messageHolder.scrollHeight;
+    let messageHolder = document.getElementById(`messages-${recipient}`);
+    messageHolder.appendChild(item);
+    scrollToBottom(messageHolder);
 
 }
+
+const appendMessageFromONLINEUser = (sender, message, toLobby) => {
+
+    // let theMessage = message + "----" + new Date(Date.now()).toString().substring(0, 24);
+    let item = document.createElement('li');
+    item.innerHTML = `${sender} -> ${message}`;
+
+    if (toLobby) {
+        // it needs to go to the lobby
+        console.log(`recipient lobby`);
+        let messageHolder = document.getElementById(`messages-Lobby`);
+        messageHolder.appendChild(item);
+        scrollToBottom(messageHolder);
+
+    } else {
+        // it needs to go to a user directly
+        console.log(`recipient messages-${sender}`);
+        let messageHolder = document.getElementById(`messages-${sender}`)
+        messageHolder.appendChild(item);
+        scrollToBottom(messageHolder);
+    }
+}
+
+
 // used later AFTER initially filling the user list
 const refreshUserList = (user) => {
+
 
     /* get all the user buttons in the "all-users-tabs" div and convert them to an array*/
     const allUserButtonsArray = Array.from(allUserButtons.querySelectorAll('button.tablinks'));
@@ -108,7 +135,7 @@ const refreshUserList = (user) => {
 
     } else {
 
-        /* if array.find finds the specified element then it returns it, which means that it can easily be removed*/
+        /* if array.find finds the specified element then it returns it, meaning it can  be removed*/
         //remove button
         allUserButtons.removeChild(oneUserButton);
         // remove content
@@ -132,50 +159,56 @@ const fillUserList = (userList) => {
         }
     });
 
-    addEventListenerToForm("form-lobby");
-    lobbyButton.click();
+    addEventListenerToForm("form-lobby", "lobby"); // add eventlistener to the lobby form only after the user list is loaded
+    lobbyButton.click(); // click the lobby button so it is the default messaging tab
 
 }
 
 const openUserChat = (evt, user) => {
 
-    // console.log(valami);
+    // Declare all variables
     var i, tabcontent, tablinks;
     tabcontent = document.getElementsByClassName("tabcontent");
+
+    // Get all elements with class="tabcontent" and hide them
     for (i = 0; i < tabcontent.length; i++) {
         tabcontent[i].style.display = "none";
     }
+
+    // Get all elements with class="tablinks" and remove the class "active"
     tablinks = document.getElementsByClassName("tablinks");
     for (i = 0; i < tablinks.length; i++) {
         tablinks[i].className = tablinks[i].className.replace(" active", "");
     }
+
+    // Show the current tab, and add an "active" class to the link that opened the tab
     document.getElementById(user).style.display = "block";
     evt.currentTarget.className += " active";
 }
 
-const removeAllUserButtonsExceptLobby = (parent) => {
+const removeAllUserButtonsExceptLobby = parent => {
 
-    console.log(parent.querySelector("button").innerHTML);
-
+    /* search for all the elements with classname "tablinks" (those are the buttons)
+    and iterate over them. if the innerHTML is "Lobby", leave it alone otherwise delete it */
     parent.querySelectorAll('.tablinks').forEach((userButton) => {
         if (userButton.innerHTML != "Lobby") userButton.remove();
     });
-
+    // if the lobby button is not open when the others are deleted then click on lobby automatically
     if (parent.querySelector('#default-message-tab').className != "tablinks active") lobbyButton.click();
 
 }
 
-const removeAllContentTabsExceptLobby = (parent) => {
+const removeAllContentTabsExceptLobby = parent => {
 
-    console.log(parent.querySelector("div").id);
-
+    /* search for all the elements with classname "tabcontent" (those are the contents for the buttons)
+    and iterate over them. if the id is "Lobby", leave it alone otherwise delete it */
     parent.querySelectorAll('.tabcontent').forEach((messageTab) => {
         if (messageTab.id != "Lobby") messageTab.remove();
     });
 
 }
 
-const createUserTabButton = (user) => {
+const createUserTabButton = user => {
 
     let btn = document.createElement('button'); // every user will be a button; so create it
     btn.innerHTML = user.username; // set the button text to the username
@@ -188,7 +221,7 @@ const createUserTabButton = (user) => {
 
 }
 
-const createUserTabContent = (user) => {
+const createUserTabContent = user => {
 
     let div = document.createElement('div'); // create the div that holds everything
     div.id = user.username; // the id of the div is the username which it belongs to 
@@ -198,11 +231,12 @@ const createUserTabContent = (user) => {
     h3.innerHTML = `Send message to ${user.username}`; // set some info in the h3
     h3.className = "content-heading";
 
-    let messageDiv = document.createElement('div');
+    let messageDiv = document.createElement('div'); // div for ul
     messageDiv.className = "message-holder";
 
     let ul = document.createElement('ul'); //create the unordered list for the messages 
     ul.id = `messages-${user.username}`; // give it the id "messages-'username for which this is created'"
+    ul.className = "messages-ul";
 
     let form = document.createElement('form'); // create the form
     form.className = "form";
@@ -223,7 +257,7 @@ const createUserTabContent = (user) => {
     form.appendChild(input);
     form.appendChild(sendButton);
 
-    div.appendChild(h3); // append the h3 
+    div.appendChild(h3);
     div.appendChild(messageDiv);
     div.appendChild(form);
     /* append everything the right way */
@@ -233,18 +267,23 @@ const createUserTabContent = (user) => {
     div.style.display = "none";
 
     allUserButtonContents.appendChild(div); // put the tabs inside the div that holds all of the user messages
-    addEventListenerToForm(form.id);
+    // add a custom event listener to the newly created form (custom because it is for the choosen person(tab))
+    addEventListenerToForm(form.id, user.username);
 }
 
-const addEventListenerToForm = (formID) => {
+const addEventListenerToForm = formID => {
 
     document.getElementById(formID).addEventListener('submit', (e) => {
         e.preventDefault(); // prevent form from refreshing page
 
+        let input = document.getElementById(formID).getElementsByTagName("input")[0];
+        let recipient = document.querySelector(".tablinks.active").innerHTML;
+
         if (input.value) {
-            socket.emit("send-message", username, input.value); // 1. eloszor emit elünk valamit egy custom event névvel a serverre
-            appendMessage(username, input.value);
-            input.value = "";
+            let sender = username;
+            socket.emit("send-message", sender, recipient, input.value); // 1. eloszor emit elünk valamit egy custom event névvel a serverre
+            appendMessageFromLOCALUser(recipient, input.value); // append the message
+            input.value = ""; // clear input upon sending
         }
     });
 
