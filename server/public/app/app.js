@@ -1,5 +1,4 @@
 var messages = document.getElementById('messages');
-// var messageHolders = document.getElementsByClassName("message-holder");
 var form = document.getElementById('form');
 var input = document.getElementById('input');
 var currentUser = document.getElementById('current-user');
@@ -10,7 +9,7 @@ var allUserButtonContents = document.getElementById("all-tab-contents");
 var userCount = document.getElementById('user-count');
 var lobbyButton = document.getElementById('default-message-tab');
 
-var socket = io("http://localhost:3000");
+var socket = io("https://chat-rafi.herokuapp.com");
 
 var username = prompt("Enter your username:");
 window.document.title = username;
