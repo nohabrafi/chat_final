@@ -15,6 +15,7 @@ const io = require('socket.io')(server, {
 });
 
 
+
 app.set('view engine', 'ejs');
 app.set('views', './views');
 app.use(express.static('public')); // serves static files from the 'public' folder; no path is given, so works for every route
