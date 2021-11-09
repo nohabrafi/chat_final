@@ -2,6 +2,7 @@ require('dotenv').config();
 const cors = require('cors');
 const express = require('express');
 const app = express();
+const PORT = process.env.PORT || 3000;
 const http = require('http');
 const server = http.createServer(app);
 const io = require('socket.io')(server, {
@@ -13,7 +14,9 @@ const io = require('socket.io')(server, {
 app.set('view engine', 'ejs');
 app.set('views', './views');
 app.use(express.static('public')); // serves static files from the 'public' folder
-app.use(express.urlencoded({ extended: true }));
+app.use(express.urlencoded({
+    extended: true
+}));
 app.use(express.json());
 app.use(cors()); // allow requests from anywhere ('*')
 
@@ -27,7 +30,7 @@ app.use(cors()); // allow requests from anywhere ('*')
 // mongoose.connect(uri, options, callback);
 // //############ CONNECTION TO DB ############//
 
-server.listen(process.env.PORT || 3000, () => console.log(`Server listening on port ${process.env.PORT}`));
+server.listen(PORT, () => console.log(`Server listening on port ${process.env.PORT}`));
 
 app.get('/', (req, res) => {
     res.render("app");
