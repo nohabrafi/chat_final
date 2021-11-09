@@ -2,6 +2,7 @@ require('dotenv').config();
 const cors = require('cors');
 const express = require('express');
 const app = express();
+const PORT = process.env.PORT || 3000;
 const http = require('http');
 const {
     send
@@ -12,6 +13,7 @@ const io = require('socket.io')(server, {
         origin: "*"
     }
 });
+
 
 app.set('view engine', 'ejs');
 app.set('views', './views');
@@ -30,7 +32,7 @@ app.use(express.json());
 // mongoose.connect(uri, options, callback);
 // //############ CONNECTION TO DB ############//
 
-server.listen(process.env.PORT || 3000, () => console.log(`Server listening on port ${process.env.PORT}`));
+server.listen(PORT, () => console.log(`Server listening on port ${process.env.PORT}`));
 
 var onlineUsers = [];
 
