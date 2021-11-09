@@ -17,11 +17,7 @@ const io = require('socket.io')(server, {
 
 app.set('view engine', 'ejs');
 app.set('views', './views');
-<<<<<<< HEAD
-app.use(express.static('public')); // serves static files from the 'public' folder
-=======
 app.use(express.static('public')); // serves static files from the 'public' folder; no path is given, so works for every route
->>>>>>> 3b0b0001e1f116436cd228e8d925089189d72497
 app.use(express.urlencoded({
     extended: true
 }));
@@ -37,11 +33,8 @@ app.use(express.json());
 // //############ CONNECTION TO DB ############//
 
 server.listen(PORT, () => console.log(`Server listening on port ${process.env.PORT}`));
-<<<<<<< HEAD
-=======
 
 var onlineUsers = [];
->>>>>>> 3b0b0001e1f116436cd228e8d925089189d72497
 
 app.get('/', (req, res) => {
     res.render("app");
