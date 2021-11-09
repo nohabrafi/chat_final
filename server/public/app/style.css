@@ -1,16 +1,23 @@
 body {
     background-image: url('chatbg.jpg');
+    /* background-position: center; */
+    /* background-repeat: no-repeat; */
+    background-size: cover;
 }
 
 div.sign-out-field {
     text-align: center;
 }
 
-#curr-user {
+
+.nice-yellow {
     font-size: 25px;
     border: solid 2px black;
-    width: 200px;
+    width: 20%;
     background: #ffae00;
+    margin-left: auto;
+    margin-right: auto;
+    text-align: center;
 }
 
 #sign-out-button {
@@ -49,36 +56,41 @@ div.sign-out-field {
 }
 
 #kerekegesz {
-    width: 700px;
-    height: 500px;
+
+    position: relative;
+    width: 100%;
+    height: 700px;
     margin-left: auto;
     margin-right: auto;
-    margin-bottom: auto;
+
 }
 
-#message-holder {
-    width: auto;
-    height: 100%;
-    margin-top: 100px;
+
+
+.message-holder {
+
+    width: 100%;
+    top: 55px;
     overflow: scroll;
-    position: relative;
+    position: absolute;
+    bottom: 3rem;
     border: 5px solid rgb(3, 95, 201);
     background-color: #fde88886;
     overflow-x: hidden;
 }
 
-#form {
+form {
+
+    position: absolute;
     background: rgb(3, 95, 201);
     padding: 0.25rem;
     display: flex;
     height: 3rem;
     box-sizing: border-box;
     backdrop-filter: blur(10px);
-    margin-top: auto;
-    margin-left: auto;
-    margin-right: auto;
-    margin-bottom: auto;
-    width: auto;
+    bottom: 0px;
+    left: 0px;
+    right: 0px;
 }
 
 #input {
@@ -93,7 +105,7 @@ div.sign-out-field {
     outline: none;
 }
 
-#form>button {
+.form>button {
     background: rgb(120, 88, 236);
     border: none;
     padding: 0 1rem;
@@ -103,17 +115,109 @@ div.sign-out-field {
     color: #fff;
 }
 
-#messages {
+.messages-ul {
     list-style-type: none;
     margin: 0;
     padding: 0;
 }
 
-#messages>li {
+.messages-ul>li {
     padding: 0.5rem 1rem;
     background: #ddd7b2c9;
 }
 
-#messages>li:nth-child(odd) {
+.messages-ul>li:nth-child(odd) {
     background: #4d91b8da;
+}
+
+#all-users {
+    float: left;
+    height: 20px;
+    width: 300px;
+    background-color: #ffae00;
+    margin-bottom: 100px;
+}
+
+#users-list {
+    list-style-type: none;
+}
+
+* {
+    box-sizing: border-box
+}
+
+body {
+    font-family: "Lato", sans-serif;
+}
+
+/* Style the tab */
+.users-tabs {
+    position: absolute;
+    bottom: 0px;
+    float: left;
+    border: 1px solid #ccc;
+    background-color: #f1f1f1;
+    width: 10%;
+    height: 100%;
+}
+
+/* Style the buttons inside the tab */
+.users-tabs button {
+    display: block;
+    background-color: inherit;
+    color: black;
+    padding: 22px 16px;
+    width: 100%;
+    border: none;
+    outline: none;
+    text-align: left;
+    cursor: pointer;
+    transition: 0.3s;
+    font-size: 17px;
+}
+
+/* Change background color of buttons on hover */
+.users-tabs button:hover {
+    background-color: #ddd;
+}
+
+/* Create an active/current "tab button" class */
+.users-tabs button.active {
+    background-color: #ccc;
+}
+
+/* Style the tab content */
+.tabcontent {
+    margin-left: 10%;
+    float: left;
+    position: absolute;
+    border: 1px solid #ccc;
+    width: 90%;
+    border-left: none;
+    height: 100%;
+    animation: fadeEffect 1s;
+}
+
+.content-heading {
+    padding: 0px 12px;
+}
+
+@-webkit-keyframes fadeEffect {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes fadeEffect {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
 }

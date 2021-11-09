@@ -10,24 +10,37 @@
     <script defer src="http://localhost:3000/socket.io/socket.io.js"></script>
     <script defer src="app/app.js"></script>
     <!-- If the defer attribute is set, it specifies that the script is downloaded
-     in parallel to parsing the page, and executed after the page has finished parsing. -->
+    in parallel to parsing the page, and executed after the page has finished parsing. -->
 
 </head>
 
 <body>
-    <p id="curr-user"> logged in: ..</p>
+    <p id="current-user" class="nice-yellow">minta jános</p>
+    <p id="user-count" class="nice-yellow">Users online</p>
+
     <div id="kerekegesz">
-        <div id="message-holder">
-            <ul id="messages"></ul>
+        <div id="all-users-tabs" class="users-tabs">
+            <button class="tablinks" id="default-message-tab" onclick="openUserChat(event, 'Lobby')">Lobby</button>
         </div>
-        <form id="form">
-            <input id="input" autocomplete="off" /><button>Send</button>
-        </form>
-        <div id="sign-out-field">
-            <button id="sign-out-button" onclick="logOutUser()">Log Out</button>
+
+        <div id="all-tab-contents" class="tab-contents">
+
+            <div id="Lobby" class="tabcontent">
+
+                <h3 class="content-heading">Send message to everyone</h3>
+
+                <div class="message-holder">
+                    <ul class="messages-ul" id="messages-Lobby"></ul>
+                </div>
+
+                <form class="form" id="form-lobby">
+                    <input id="input" autocomplete="off" /><button>Send</button>
+                </form>
+
+            </div>
+
         </div>
     </div>
-
 </body>
 
 </html>
