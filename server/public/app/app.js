@@ -9,11 +9,14 @@ var allUserButtonContents = document.getElementById("all-tab-contents");
 var userCount = document.getElementById('user-count');
 var lobbyButton = document.getElementById('default-message-tab');
 
-var socket = io("https://chat-rafi.herokuapp.com");
+// var socket = io("https://chat-rafi.herokuapp.com");
+var socket = io("http://localhost:3000");
 
-var username = prompt("Enter your username:");
+
+// var username = prompt("Enter your username:");
+var username = currentUser.innerText;
 window.document.title = username;
-currentUser.innerHTML = `user in this tab: <span style="color: rgb(142, 10, 218);">${username}</span>`;
+// currentUser.innerHTML = `user in this tab: <span style="color: rgb(142, 10, 218);">${username}</span>`;
 
 
 socket.on("connect", () => {

@@ -7,12 +7,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Chat</title>
     <!-- DEPLOYED -->
-    <link rel="stylesheet" href="https://chat-rafi.herokuapp.com/app/style.css">
-    <script defer src="https://chat-rafi.herokuapp.com/socket.io/socket.io.js"></script>
+    <!-- <link rel="stylesheet" href="https://chat-rafi.herokuapp.com/app/style.css">
+    <script defer src="https://chat-rafi.herokuapp.com/socket.io/socket.io.js"></script> -->
 
     <!-- NOT DEPLOYED -->
-    <!-- <link rel="stylesheet" href="http://localhost:3000/app/style.css">
-    <script defer src="http://localhost:3000/socket.io/socket.io.js"></script> -->
+    <link rel="stylesheet" href="http://localhost:3000/app/style.css">
+    <script defer src="http://localhost:3000/socket.io/socket.io.js"></script>
 
     <script defer src="app/app.js"></script>
     <!-- If the defer attribute is set, it specifies that the script is downloaded
@@ -21,8 +21,11 @@
 </head>
 
 <body>
-    <p id="current-user" class="nice-yellow">minta jános</p>
-    <p id="user-count" class="nice-yellow">Users online</p>
+    <form action="/logout" method="GET">
+        <input type="submit" value="Logout">
+    </form>
+    <p class="nice-yellow">user in this tab: <span id="current-user" style="color: rgb(142, 10, 218);"><%=authenticatedUser%></span></p>
+    <p id="user-count" class="nice-yellow">Users online: </p>
 
     <div id="kerekegesz">
         <div id="all-users-tabs" class="users-tabs">

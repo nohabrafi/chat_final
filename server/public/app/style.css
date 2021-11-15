@@ -79,7 +79,7 @@ div.sign-out-field {
     overflow-x: hidden;
 }
 
-form {
+.form {
 
     position: absolute;
     background: rgb(3, 95, 201);
