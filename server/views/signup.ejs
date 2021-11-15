@@ -62,7 +62,6 @@
 
 <body>
     <div id="login-holder">
-        <!-- <form target="votar" id="signup-form" onsubmit="sendSignup()"> -->
         <form action="/signup" method="POST">
             <div>
                 <label for="username">Enter your username:</label>
@@ -87,42 +86,7 @@
             <p style="font-size: 35px;"><%= message %></p>
             <% } %>
         </form>
-        <!-- <iframe name="votar" style="display:none;"></iframe> -->
     </div>
-
-    <script>
-        // const sendSignup = async() => {
-
-        //     const newUsername = document.getElementById('newUsername').value;
-        //     const email = document.getElementById('email').value;
-        //     const password = document.getElementById('password').value;
-        //     const re_passaword = document.getElementById('re-password').value;
-
-        //     if (password === re_passaword) {
-
-        //         try {
-        //             let response = await fetch('http://localhost:8000/user_signup', {
-        //                 method: 'POST',
-        //                 headers: {
-        //                     'Content-Type': 'application/json'
-        //                 },
-        //                 body: JSON.stringify({
-        //                     newUsername: newUsername,
-        //                     email: email,
-        //                     password: password
-        //                 })
-        //             });
-        //             var result = await response.json();
-        //             console.log(result);
-        //             window.location.href = "http://localhost:8000/login_page";
-        //         } catch (error) {
-        //             console.log(error)
-        //         }
-        //     } else {
-        //         alert('Passwords do not match!')
-        //     }
-        // }
-    </script>
 </body>
 
 </html>
