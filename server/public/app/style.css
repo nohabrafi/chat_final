@@ -105,6 +105,39 @@ div.sign-out-field {
     outline: none;
 }
 
+button.logout-button {
+    display: inline-block;
+    padding: 0.8em 4em;
+    border: 0.16em solid #ff7b00;
+    margin: 0 0.3em 0.3em 0;
+    box-sizing: border-box;
+    text-decoration: none;
+    text-transform: uppercase;
+    font-family: 'Roboto', sans-serif;
+    font-weight: 1000;
+    color: #ff7b00;
+    text-align: center;
+    transition: all 0.15s;
+    background: rgba(255, 255, 255, 0);
+}
+
+button.logout-button:hover {
+    color: #ff0000;
+    border-color: #ff0000;
+}
+
+button.logout-button:active {
+    color: #9900ff;
+    border-color: #9900ff;
+}
+
+@media all and (max-width:30em) {
+    button.logout-button {
+        display: block;
+        margin: 0.4em auto;
+    }
+}
+
 .form>button {
     background: rgb(120, 88, 236);
     border: none;
@@ -153,6 +186,7 @@ body {
 /* Style the tab */
 .users-tabs {
     position: absolute;
+    overflow: auto;
     bottom: 0px;
     float: left;
     border: 1px solid #ccc;
@@ -174,6 +208,36 @@ body {
     cursor: pointer;
     transition: 0.3s;
     font-size: 17px;
+}
+
+.users-tabs button.online.unread {
+    display: block;
+    background-color: rgb(231, 218, 28);
+    color: black;
+    padding: 22px 16px;
+    width: 100%;
+    border: black solid 2px;
+    outline: none;
+    font-weight: bold;
+    text-align: left;
+    cursor: pointer;
+    transition: 0.3s;
+    font-size: 22px;
+}
+
+.users-tabs button.offline.unread {
+    display: block;
+    background-color: rgb(231, 150, 28);
+    color: black;
+    padding: 22px 16px;
+    width: 100%;
+    border: black solid 2px;
+    outline: none;
+    font-weight: bold;
+    text-align: left;
+    cursor: pointer;
+    transition: 0.3s;
+    font-size: 22px;
 }
 
 /* button for online user */

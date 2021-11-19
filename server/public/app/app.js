@@ -2,14 +2,14 @@ var messages = document.getElementById("messages");
 var form = document.getElementById("form");
 var input = document.getElementById("input");
 var currentUser = document.getElementById("current-user");
-var logOutButton = document.getElementById("log-out-button");
-var logInButton = document.getElementById("log-in-button");
+var logOutButton = document.querySelector(".logout-button");
 var allUserButtons = document.getElementById("all-users-tabs");
 var allUserButtonContents = document.getElementById("all-tab-contents");
 var userCount = document.getElementById("user-count");
 var lobbyButton = document.getElementById("default-message-tab");
 var onlineCnt = 0;
 var offlineCnt = 0;
+var allUserCnt = 0;
 // var socket = io("https://chat-rafi.herokuapp.com");
 var socket = io("http://localhost:3000");
 
@@ -26,55 +26,65 @@ socket.on("broadcast-userlist", (OnlineOfflineUserList) => fillUserList(OnlineOf
 
 socket.on("disconnect", () => {
     console.log(`you disconnected.`);
-    appendTechnicalMsg(`you disconnected.`);
-    // on disconnect remove all users
-    removeAllUserButtonsExceptLobby(allUserButtons);
-    removeAllContentTabsExceptLobby(allUserButtonContents);
-    changeUserCounter(0, 0, 0);
+    window.location.href = "/logout";
 });
 
 socket.on("receive-message", (sender, message, toLobby) => {
     appendMessageFromONLINEUser(sender, message, toLobby);
 });
 
-socket.on("user-connected", (connectedUser, numberOfOnlioneUsers, connectMsg) => {
-    // changeUserCounter(numberOfUsers);
+socket.on("user-connected", (connectedUser, OnlineOfflineUserList, connectMsg) => {
+    changeUserCounter(OnlineOfflineUserList);
     refreshUserList(connectedUser, true);
     appendTechnicalMsg(connectMsg);
 });
 
-socket.on("user-disconnected", (disconnectedUser, numberOfUsers, disconnectMsg) => {
-    // changeUserCounter(numberOfUsers);
+socket.on("user-disconnected", (disconnectedUser, OnlineOfflineUserList, disconnectMsg) => {
+    changeUserCounter(OnlineOfflineUserList);
     refreshUserList(disconnectedUser, false);
     appendTechnicalMsg(disconnectMsg);
 });
 
-socket.on("got-past-messages", (conversation) => {
-    loadPastConversations(conversation);
+socket.on("got-past-messages", (conversation, fromFillUserListTrueOrFalse) => {
+    loadPastConversations(conversation, fromFillUserListTrueOrFalse);
 });
 
-const getPastMessages = (username, recipient) => {
-    socket.emit("get-past-messages", username, recipient);
-    console.log("reqest sent");
+const getPastMessages = (username, recipient, fromFillUserListTrueOrFalse) => {
+    socket.emit("get-past-messages", username, recipient, fromFillUserListTrueOrFalse);
+    // console.log("reqest sent");
 };
 
-const loadPastConversations = (conversation) => {
+const loadPastConversations = (conversation, fromFillUserListTrueOrFalse) => {
     conversation.forEach((msg) => {
         if (msg.recipient === "Lobby" && msg.sender === username) {
             return appendMessageFromLOCALUser(msg.recipient, msg.message);
         } else if (msg.recipient === "Lobby" && msg.sender !== username) {
-            return appendMessageFromONLINEUser(msg.sender, msg.message, true);
+            return appendMessageFromONLINEUser(msg.sender, msg.message, true, fromFillUserListTrueOrFalse);
         } else if (msg.recipient !== "Lobby" && msg.sender === username) {
             return appendMessageFromLOCALUser(msg.recipient, msg.message);
         } else if (msg.recipient !== "Lobby" && msg.sender !== username) {
-            return appendMessageFromONLINEUser(msg.sender, msg.message, false);
+            return appendMessageFromONLINEUser(msg.sender, msg.message, false, fromFillUserListTrueOrFalse);
         }
     });
     appendTechnicalMsg(`you with name ${username} connected.`); // give this message after the other messages have been loaded
 };
 
-const changeUserCounter = (online, offline, all) => {
-    userCount.innerHTML = `Users <span style="color: green">online</span>: ${online}; Users <span style="color: red">offline</span>: ${offline}; All users: ${all};`; // change the number of users
+const changeUserCounter = (OnlineOfflineUserList) => {
+
+    onlineCnt = 0;
+    offlineCnt = 0;
+    allUserCnt = 0;
+
+    OnlineOfflineUserList.forEach(userObj => {
+        if (userObj.online == true) {
+            onlineCnt += 1;
+        } else {
+            offlineCnt += 1;
+        };
+    });
+    allUserCnt = OnlineOfflineUserList.length;
+
+    userCount.innerHTML = `Users <span style="color: green">online</span>: ${onlineCnt}; Users <span style="color: red">offline</span>: ${offlineCnt}; All users: ${allUserCnt};`; // change the number of users
 };
 
 const scrollToBottom = (scrollElement) => {
@@ -101,7 +111,7 @@ const appendMessageFromLOCALUser = (recipient, message) => {
     scrollToBottom(messageHolder);
 };
 
-const appendMessageFromONLINEUser = (sender, message, toLobby) => {
+const appendMessageFromONLINEUser = (sender, message, toLobby, fromFillUserListTrueOrFalse) => {
     /* "toLobby" variable is needed, because the sender has to be a username. it cannot be "lobby" because then the actual sender 
       would be unknown. this is important, because the "sender" tells the function where to append the message. if it would say "lobby",
       the message would go to lobby but the user who sent it would be unknown */
@@ -111,84 +121,73 @@ const appendMessageFromONLINEUser = (sender, message, toLobby) => {
 
     if (toLobby) {
         // it needs to go to the lobby
-        console.log(`recipient lobby`);
         let messageHolder = document.getElementById(`messages-Lobby`);
         messageHolder.appendChild(item);
         scrollToBottom(messageHolder);
+        // we dont want this on the initial load 
+        if (!fromFillUserListTrueOrFalse) {
+            if (messageHolder.parentNode.parentNode.style.display == "none") {
+                makeUserUnread(sender);
+            }
+        }
+
     } else {
         // it needs to go to a user directly
-        console.log(`recipient messages-${sender}`);
         let messageHolder = document.getElementById(`messages-${sender}`);
         messageHolder.appendChild(item);
         scrollToBottom(messageHolder);
+        // we dont want this on the initial load 
+        if (!fromFillUserListTrueOrFalse) {
+            if (messageHolder.parentNode.parentNode.style.display == "none") {
+                makeUserUnread(sender);
+            }
+        }
     }
 };
 
+const makeUserUnread = (sender) => {
+    let allUserButtonsArray = Array.from(allUserButtons.querySelectorAll("button.tablinks"));
+    userButtonToChange = allUserButtonsArray.find(button => button.innerHTML === sender);
+    if (!(userButtonToChange.className.includes("unread"))) {
+        userButtonToChange.className += " unread";
+    }
+}
+
 // used later AFTER initially filling the user list
 const refreshUserList = (user, connected) => {
-
-    /* get all the user buttons in the "all-users-tabs" div and convert them to an array*/
+    let fromFillUserListTrueOrFalse = false;
+    // get all the user buttons in the "all-users-tabs" div and convert them to an array
     const allUserButtonsArray = Array.from(allUserButtons.querySelectorAll("button.tablinks"));
+    // get all the user button tabs in the "all-tab-contents" div and convert them to an array
+    const allUserButtonContentsArray = Array.from(allUserButtonContents.querySelectorAll("div.tabcontent"));
+    // try to find the user in the list. 
+    const UserButton = allUserButtonsArray.find(button => button.innerHTML === user.username);
+    // the same happens for the button content tabs 
+    const UserButtonContent = allUserButtonContentsArray.find(div => div.id === user.username);
 
-    /* try to find the user in the list. if it is found then "refreshUserList" has been called from a user disconnect event.
-       in that case the user needs to be deleted from the list. The array.find function returns the user for deletion.*/
-    const UserButton = allUserButtonsArray.find((button) => button.innerHTML === user.username);
-
-    if (connected) {
-        UserButton.className.replace("offline", "online");
+    // if buttons and tabs don't exist, create them. this happens when a new user registers 
+    if (UserButton == undefined && UserButtonContent == undefined) {
+        // creation of the tab buttons
+        createUserTabButton(user);
+        // creation of the tab contents
+        createUserTabContent(user);
+        // get the past messages and load them when the response comes back from the server
+        getPastMessages(username, user.username, fromFillUserListTrueOrFalse);
     } else {
-        UserButton.className.replace("online", "offline");
+        // if they exist, change the look depending on the status
+        if (connected) {
+            UserButton.className = UserButton.className.replace("offline", "online");
+        } else {
+            UserButton.className = UserButton.className.replace("online", "offline");
+        }
     }
-
-
-    // /* get all the user buttons in the "all-users-tabs" div and convert them to an array*/
-    // const allUserButtonsArray = Array.from(
-    //     allUserButtons.querySelectorAll("button.tablinks")
-    // );
-    // /* get all the user buttons in the "all-tab-contents" div and convert them to an array*/
-    // const allUserButtonContentsArray = Array.from(
-    //     allUserButtonContents.querySelectorAll("div.tabcontent")
-    // );
-
-    // /* try to find the user in the list. if it is found then "refreshUserList" has been called from a user disconnect event.
-    //    in that case the user needs to be deleted from the list. The array.find function returns the user for deletion.*/
-    // const oneUserButton = allUserButtonsArray.find(
-    //     (button) => button.innerHTML == user.username
-    // );
-    // /* the same happens for the button content tabs */
-    // const oneUserButtonContent = allUserButtonContentsArray.find(
-    //     (div) => div.id == user.username
-    // );
-
-    // /* if both of them are undefined then this means that array.find did not find users with the provided name
-    //   and it returned "undefined". in this case new button and button content elements will be created for the new user
-    //   */
-    // if (oneUserButton == undefined && oneUserButtonContent == undefined) {
-    //     // creation of the tab buttons //
-    //     createUserTabButton(user);
-    //     // creation of the tab contents
-    //     createUserTabContent(user);
-    //     // get the past messages and load them when the response comes back from the server //
-    //     getPastMessages(username, user.username);
-    // } else {
-    //     /* if array.find finds the specified element then it returns it, meaning it can  be removed*/
-    //     //remove button
-    //     allUserButtons.removeChild(oneUserButton);
-    //     // remove content
-    //     allUserButtonContents.removeChild(oneUserButtonContent);
-    // }
 };
 
 // initially fill the user list
 const fillUserList = (OnlineOfflineUserList) => {
+    let fromFillUserListTrueOrFalse = true;
     // show the count of all online users
-    OnlineOfflineUserList.forEach(userObj => {
-        if (userObj.online == true) onlineCnt += 1;
-    });
-
-    offlineCnt = OnlineOfflineUserList.length - onlineCnt;
-
-    changeUserCounter(onlineCnt, offlineCnt, OnlineOfflineUserList.length);
+    changeUserCounter(OnlineOfflineUserList);
 
     OnlineOfflineUserList.forEach((user) => {
         if (user.username != username) {
@@ -198,11 +197,11 @@ const fillUserList = (OnlineOfflineUserList) => {
             // creation of the tab contents //
             createUserTabContent(user);
             // get the past messages and load them when the response comes back from the server //
-            getPastMessages(username, user.username);
+            getPastMessages(username, user.username, fromFillUserListTrueOrFalse);
         }
     });
 
-    getPastMessages(username, "Lobby"); // load messages to lobby
+    getPastMessages(username, "Lobby", fromFillUserListTrueOrFalse); // load messages to lobby
     addEventListenerToForm("form-lobby", "lobby"); // add eventlistener to the lobby form only after the user list is loaded
     lobbyButton.click(); // click the lobby button so it is the default messaging tab
 };
@@ -228,6 +227,9 @@ const openUserChat = (evt, user) => {
         document.getElementById(user.username).style.display = "block";
     } else {
         document.getElementById(user).style.display = "block";
+    }
+    if (evt.currentTarget.className.includes("unread")) {
+        evt.currentTarget.className = evt.currentTarget.className.replace(" unread", " online");
     }
     evt.currentTarget.className += " active";
 
@@ -339,11 +341,12 @@ const addEventListenerToForm = (formID) => {
     });
 };
 
-// getPastMessages.addEventListener("click", () => {
-//   let recipient = document.querySelector(".tablinks.active").innerHTML; // select recipient by active tab
-//   socket.emit("get-past-messages", username, recipient);
-//   console.log("reqest sent");
-// });
+logOutButton.addEventListener("click", () => {
+    // this also works but the disconnection reason will be "transport closed" 
+    // socket.connected = false; 
+    // socket.disconnected = true;
+    socket.disconnect();
+});
 
 document.addEventListener("keydown", (e) => {
     if (e.target.matches("input")) return;

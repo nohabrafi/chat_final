@@ -35,12 +35,32 @@
             height: auto;
             text-align: center;
             margin-top: 10%;
-            margin-left: 20%;
-            margin-right: 20%;
+            margin-left: 30%;
+            margin-right: 30%;
             margin-bottom: 20%;
             background: linear-gradient(66deg, rgba(0, 202, 255, 1) 0%, rgba(0, 151, 255, 1) 28%, rgb(9, 128, 226) 57%, rgb(128, 56, 243) 86%);
             align-items: center;
             border-radius: 30px;
+            /* transition: opacity 0.6s;
+            opacity: 0.5; */
+        }
+
+        div#login-holder:hover {
+            display: flex;
+            justify-content: center;
+            flex-direction: column;
+            width: auto;
+            height: auto;
+            text-align: center;
+            margin-top: 10%;
+            margin-left: 30%;
+            margin-right: 30%;
+            margin-bottom: 20%;
+            background: linear-gradient(66deg, rgba(0, 202, 255, 1) 0%, rgba(0, 151, 255, 1) 28%, rgb(9, 128, 226) 57%, rgb(128, 56, 243) 86%);
+            align-items: center;
+            border-radius: 30px;
+            /* transition: opacity 0.6s;
+            opacity: 1; */
         }
 
         label,
@@ -56,6 +76,35 @@
             font-size: 30px;
             font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
             align-items: center;
+        }
+
+        input.nice,
+        button.nice {
+            display: inline-block;
+            padding: 0.5em 3em;
+            border: 0.16em solid #ff7b00;
+            margin: 0 0.3em 0.3em 0;
+            box-sizing: border-box;
+            text-decoration: none;
+            text-transform: uppercase;
+            font-family: 'Roboto', sans-serif;
+            font-weight: 400;
+            color: #ff7b00;
+            text-align: center;
+            transition: all 0.15s;
+            background: rgba(255, 255, 255, 0);
+        }
+
+        input.nice:hover,
+        button.nice:hover {
+            color: #ff0000;
+            border-color: #ff0000;
+        }
+
+        input.nice:active,
+        button.nice:active {
+            color: #9900ff;
+            border-color: #9900ff;
         }
     </style>
 </head>
@@ -79,12 +128,18 @@
                 <label for="re_password">Enter your password again:</label>
                 <input type="password" name="re_password" id="re_password" required>
             </div>
-            <div>
-                <input type="submit" value="Signup!">
-            </div>
             <% if (message){ %>
             <p style="font-size: 35px;"><%= message %></p>
             <% } %>
+            <div>
+                <input class="nice" type="submit" value="Signup!">
+            </div>
+        </form>
+
+        <form action="/login" method="GET">
+            <label for="sign-up-button">Already have an account?</label>
+            <br>
+            <input class="nice" type="submit" value="Login!">
         </form>
     </div>
 </body>

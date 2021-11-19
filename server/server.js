@@ -21,6 +21,16 @@ const store = new MongoDBStore({
 const userModel = require("./models/UserModel");
 const messageModel = require("./models/MessageModel");
 
+const sessionMiddleware = session({
+    cookie: {
+        maxAge: 60000
+    },
+    secret: "my secret secret",
+    resave: false,
+    saveUninitialized: false,
+    store: store
+});
+
 var onlineUsers = [];
 var everyRegisteredUser = [];
 var OnlineOfflineUserList = [];
@@ -35,15 +45,15 @@ app.use(express.urlencoded({
 }));
 
 // manage session
-app.use(session({
-    cookie: {
-        maxAge: 60000
-    },
-    secret: "my secret secret",
-    resave: false,
-    saveUninitialized: false,
-    store: store
-}));
+app.use(sessionMiddleware);
+
+io.use((socket, next) => {
+    sessionMiddleware(socket.request, {}, next);
+
+    // console.log(socket);
+
+    // console.log("from io.use: " + socket.request.res);
+})
 
 const isAuthenticated = (req, res, next) => {
     if (req.session.isAuth) {
@@ -194,71 +204,46 @@ app.post("/login", async (req, res) => {
 });
 
 io.on("connection", (socket) => {
+
     socket.on("add-username", async (user) => {
-        console.log("users-array in the moment of connection:");
-        onlineUsers.forEach((element) => {
-            console.log(element);
-        });
 
-        // check if user is already logged in (if it is in the "onlineUsers" array)
-        let userIsAlreadyLoggedIn = onlineUsers.find((userObj) => userObj.username === user);
-        // if it is then search for its socket id and disconnect it. only the newer connection remains
-        if (userIsAlreadyLoggedIn) {
-            const sockets = await io.fetchSockets(); // fetch all the connected sockets
-            const oldUserConnection = sockets.find((socket) => socket.id === userIsAlreadyLoggedIn.socketID); // find socket by id
-            oldUserConnection.disconnect(); // on the disconnected event the user will be removed of the onlinUsers array
-
-            onlineUsers.push({ // storing users in an extra array
-                username: user,
-                socketID: socket.id
-            });
-
-            console.log("users-array after connected with the same name again: ");
-            onlineUsers.forEach((element) => {
-                console.log(element);
-            });
-        } else {
-            onlineUsers.push({ // storing users in an extra array
-                username: user,
-                socketID: socket.id
-            });
-
-            console.log("users-array after a new user connected normally");
-            onlineUsers.forEach((element) => {
-                console.log(element);
-            });
-        }
-        socket.username = user;
-        socket.join("Lobby"); // join every socket to the room lobby
-
-        let connectMsg = `${user} connected`;
-
-        // just console log it on the server
-        console.log(connectMsg);
-
-
+        // clear the lists because it is easier than modifiing them. atleast for now
+        everyRegisteredUser = [];
+        OnlineOfflineUserList = [];
+        // get every registered users from the DB
         try {
-            // clear the lists because it is easier than modifiing them. atleast for now
-            everyRegisteredUser = [];
-            OnlineOfflineUserList = [];
-            // get every registered users from the DB
             everyRegisteredUser = await userModel.find({}, {
                 _id: 0,
                 username: 1
             }); // get only username; id comes by default but we dont need that so 0
 
-            // make the list of online and offline users from two arrays. one contains only the online users, 
-            //the other every single user in the DB
+        } catch (e) {
+            console.error(e);
+        }
+
+        // set the sockets property to the connected users name
+        socket.username = user;
+        // join every socket to the room lobby
+        socket.join("Lobby");
+        // set connection message
+        let connectMsg = `${user} connected`;
+
+        // make the list of online and offline users from two arrays. one contains only the online users (the connected sockets), 
+        // the other every single user in the DB
+        try {
+            const sockets = await io.fetchSockets(); // fetch all the connected sockets
             everyRegisteredUser.forEach((registeredUser) => {
-                //loop through the users found in the DB and check if they are in the onlineUsers array as well 
-                let onlineUser = onlineUsers.find(onlineUser => onlineUser.username === registeredUser.username);
+                //loop through the users found in the DB and check if they are in the sockets array as well 
+                // let onlineUser = onlineUsers.find(onlineUser => onlineUser.username === registeredUser.username);
+                let userIsOnline = sockets.find(socket => socket.username === registeredUser.username); // returns the socket with this username
+
                 // if the user is online push it into the main array and set online to TRUE
-                if (onlineUser) {
+                if (userIsOnline) {
                     // let index = onlineUsers.indexOf(onlineUser);
                     OnlineOfflineUserList.push({
                         username: registeredUser.username,
                         online: true,
-                        socketID: onlineUser.socketID
+                        socketID: userIsOnline.id // is actually socket.id
                     });
                 } else {
                     // if the user is offline push it into the main array and set online to FALSE
@@ -270,31 +255,32 @@ io.on("connection", (socket) => {
                 }
 
             });
+
             // information for the server
             console.log("                                                                  ");
             console.log("                                                                  ");
+            console.log(connectMsg);
             console.log("                                                                  ");
-            console.log("status of all users on the server");
+            console.log("status of all users on the server:");
             console.log(OnlineOfflineUserList);
             console.log("                                                                  ");
             console.log("                                                                  ");
             console.log("                                                                  ");
 
-        } catch (e) {
-            console.log(e);
-        }
+            let connectedUser = OnlineOfflineUserList.find(userObj => userObj.socketID === socket.id);
 
-        try { // emit to the latest connected socket the list which contains who is online and who is not
+            // emit to the latest connected socket the list which contains who is online and who is not
             socket.emit("broadcast-userlist", OnlineOfflineUserList);
             // upon the CONNECTION of a socket the server broadcasts a message to the other connected sockets to let them know
             // broadcast to everyone else number of users, name of connected user, and a message
-            socket.to("Lobby").emit("user-connected", onlineUsers[onlineUsers.length - 1], onlineUsers.length, connectMsg);
+            socket.to("Lobby").emit("user-connected", connectedUser, OnlineOfflineUserList, connectMsg);
+
         } catch (e) {
-            console.log(e);
+            console.error(e);
         }
     });
 
-    socket.on("get-past-messages", async (user, recipient) => {
+    socket.on("get-past-messages", async (user, recipient, fromFillUserListTrueOrFalse) => {
         try {
             console.log("search started...");
             let conversation = undefined;
@@ -324,44 +310,55 @@ io.on("connection", (socket) => {
             }
 
             if (conversation.length < 1) {
-                console.log("no messages for this user yet");
+                console.log(`no messages between ${user} and ${recipient} yet`);
                 return;
             }
 
-            socket.emit("got-past-messages", conversation);
-            console.log(`${conversation.length
-                } messages found`);
+            socket.emit("got-past-messages", conversation, fromFillUserListTrueOrFalse);
+            console.log(`${conversation.length} messages found between ${user} and ${recipient}`);
         } catch (e) {
             console.log(e);
         }
     });
 
     socket.on("disconnect", (reason) => {
-        var disconnectMsg;
-        let disconnectedUser = onlineUsers.find((userObj) => userObj.socketID == socket.id); // find the disconnected user by socket id
 
-        if (disconnectedUser == undefined) { // if undefined than not found. this happens only when the server restarts
-
+        let disconnectMsg = undefined;
+        let disconnectedUser = undefined;
+        // let disconnectedUser = onlineUsers.find((userObj) => userObj.socketID == socket.id); // find the disconnected user by socket id
+        // let disconnectedUsername = socket.username;
+        if (socket.username == undefined) { // if undefined than not found. this happens only when the server restarts
             disconnectMsg = `someone disconnected due to "${reason}"`;
             console.log("some problem that i dont understand yet :P");
         } else {
-            let userIndex = onlineUsers.indexOf(disconnectedUser); // get the index of the userobject
-            onlineUsers.splice(userIndex, 1); // remove from the onlineUsers array the disconnected user
-            disconnectMsg = `${disconnectedUser.username} disconnected due to "${reason}"`;
+            // let disconnectedUser = onlineUsers.find(userObj => userObj.username === socket.username); // get the index of the userobject
+            // let userIndex = onlineUsers.indexOf(disconnectedUser);
+            // onlineUsers.splice(userIndex, 1); // remove from the onlineUsers array the disconnected user
+
+            disconnectedUser = OnlineOfflineUserList.find(userObj => userObj.username === socket.username);
+            disconnectedUser.online = false;
+            disconnectedUser.socketID = "empty";
+            disconnectMsg = `${socket.username} disconnected due to "${reason}"`;
+
         }
 
+        console.log(disconnectMsg);
         console.log("users-array after one disconnected");
         onlineUsers.forEach((element) => {
             console.log(element);
         });
+        console.log(`disconnected user: ${socket.username}`);
 
-        console.log(disconnectMsg);
+        console.log(OnlineOfflineUserList);
+
         /* upon the DISCONNECTION of a socket the server broadcasts a message, the disconnected user
          and the new length of the users array to the other connected sockets to let them know */
-        socket.to("Lobby").emit("user-disconnected", disconnectedUser, onlineUsers.length, disconnectMsg);
+        socket.to("Lobby").emit("user-disconnected", disconnectedUser, OnlineOfflineUserList, disconnectMsg);
+        // socket.disconnect(true);
     });
 
     socket.on("send-message", async (sender, recipient, message) => {
+
         let toLobby = undefined; // variable to say if the message goes  to lobby or not
 
         const msgToSaveToDB = new messageModel({
@@ -387,11 +384,11 @@ io.on("connection", (socket) => {
 
             // check the socket is found at all by recipient name
             if (sendMessageToThisSocket != undefined) { // if it is then send message to the id of the socket (its own room)
-                console.log(`message sent from ${sender} to ${sendMessageToThisSocket.id} (${sendMessageToThisSocket.username})`);
+                console.log(`message sent from ${sender} to ${sendMessageToThisSocket.username}`);
                 socket.to(sendMessageToThisSocket.id).emit("receive-message", sender, message, toLobby);
             } else {
                 console.log("something went wrong sorry :(. ");
-                console.log("I think the user is not online because it was not found in the array of online users");
+                console.log("Most likely the user is not online because it was not found in the array of online users");
             }
         }
     });
