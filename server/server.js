@@ -21,6 +21,8 @@ const store = new MongoDBStore({
 const userModel = require("./models/UserModel");
 const messageModel = require("./models/MessageModel");
 
+// manage session
+
 const sessionMiddleware = session({
     cookie: {
         maxAge: 60000
@@ -44,17 +46,13 @@ app.use(express.urlencoded({
     extended: true
 }));
 
-// manage session
 app.use(sessionMiddleware);
 
 io.use((socket, next) => {
     sessionMiddleware(socket.request, {}, next);
-
-    // console.log(socket);
-
-    // console.log("from io.use: " + socket.request.res);
 })
 
+// check if user is authenticated
 const isAuthenticated = (req, res, next) => {
     if (req.session.isAuth) {
         next();
@@ -63,6 +61,7 @@ const isAuthenticated = (req, res, next) => {
     }
 };
 
+// check if user is not authenticated
 const isNotAuthenticated = (req, res, next) => {
     if (!req.session.isAuth) {
         next();
@@ -71,10 +70,10 @@ const isNotAuthenticated = (req, res, next) => {
     }
 };
 
+//connect to DB
 mongoose.connect(uri).then(() => console.log("Connected to MongoDB")).catch((error) => console.error(error));
 
-server.listen(PORT, () => console.log(`Server listening on port ${process.env.PORT
-    }`));
+server.listen(PORT, () => console.log(`Server listening on port ${process.env.PORT}`));
 
 app.get("/", isAuthenticated, (req, res) => {
     res.render("app", {
@@ -127,8 +126,8 @@ app.post("/signup", async (req, res) => { // get the data from the request body
         });
     }
 
-    const hashedPassword = await bcrypt.hash(password, 12);
     // encrypting password
+    const hashedPassword = await bcrypt.hash(password, 12);
 
     // creating the user model to be saved in the DB
     user = new userModel({
@@ -233,18 +232,18 @@ io.on("connection", (socket) => {
         try {
             const sockets = await io.fetchSockets(); // fetch all the connected sockets
             everyRegisteredUser.forEach((registeredUser) => {
-                //loop through the users found in the DB and check if they are in the sockets array as well 
-                // let onlineUser = onlineUsers.find(onlineUser => onlineUser.username === registeredUser.username);
-                let userIsOnline = sockets.find(socket => socket.username === registeredUser.username); // returns the socket with this username
 
+                //loop through the users found in the DB and check if they are in the sockets array as well 
+                let userIsOnline = sockets.find(socket => socket.username === registeredUser.username); // returns the socket with this username
                 // if the user is online push it into the main array and set online to TRUE
                 if (userIsOnline) {
-                    // let index = onlineUsers.indexOf(onlineUser);
+
                     OnlineOfflineUserList.push({
                         username: registeredUser.username,
                         online: true,
                         socketID: userIsOnline.id // is actually socket.id
                     });
+
                 } else {
                     // if the user is offline push it into the main array and set online to FALSE
                     OnlineOfflineUserList.push({
@@ -281,15 +280,20 @@ io.on("connection", (socket) => {
     });
 
     socket.on("get-past-messages", async (user, recipient, fromFillUserListTrueOrFalse) => {
+
         try {
+
             console.log("search started...");
             let conversation = undefined;
 
             if (recipient === "Lobby") {
+                // get all messages that have been sent to lobby
                 conversation = await messageModel.find({
                     recipient: recipient
                 });
+
             } else {
+                // get all messages between two users
                 conversation = await messageModel.find({
                     $or: [{
                             $and: [{
@@ -307,15 +311,19 @@ io.on("connection", (socket) => {
                         }
                     ]
                 });
+
             }
 
+            // if no messages have been found then return nothing
             if (conversation.length < 1) {
                 console.log(`no messages between ${user} and ${recipient} yet`);
                 return;
             }
 
+            // send back messages
             socket.emit("got-past-messages", conversation, fromFillUserListTrueOrFalse);
             console.log(`${conversation.length} messages found between ${user} and ${recipient}`);
+
         } catch (e) {
             console.log(e);
         }
@@ -325,15 +333,13 @@ io.on("connection", (socket) => {
 
         let disconnectMsg = undefined;
         let disconnectedUser = undefined;
-        // let disconnectedUser = onlineUsers.find((userObj) => userObj.socketID == socket.id); // find the disconnected user by socket id
-        // let disconnectedUsername = socket.username;
+
         if (socket.username == undefined) { // if undefined than not found. this happens only when the server restarts
+
             disconnectMsg = `someone disconnected due to "${reason}"`;
             console.log("some problem that i dont understand yet :P");
+
         } else {
-            // let disconnectedUser = onlineUsers.find(userObj => userObj.username === socket.username); // get the index of the userobject
-            // let userIndex = onlineUsers.indexOf(disconnectedUser);
-            // onlineUsers.splice(userIndex, 1); // remove from the onlineUsers array the disconnected user
 
             disconnectedUser = OnlineOfflineUserList.find(userObj => userObj.username === socket.username);
             disconnectedUser.online = false;
@@ -354,13 +360,14 @@ io.on("connection", (socket) => {
         /* upon the DISCONNECTION of a socket the server broadcasts a message, the disconnected user
          and the new length of the users array to the other connected sockets to let them know */
         socket.to("Lobby").emit("user-disconnected", disconnectedUser, OnlineOfflineUserList, disconnectMsg);
-        // socket.disconnect(true);
+
     });
 
     socket.on("send-message", async (sender, recipient, message) => {
 
         let toLobby = undefined; // variable to say if the message goes  to lobby or not
 
+        // save message to DB
         const msgToSaveToDB = new messageModel({
             sender: sender,
             recipient: recipient,
@@ -388,7 +395,7 @@ io.on("connection", (socket) => {
                 socket.to(sendMessageToThisSocket.id).emit("receive-message", sender, message, toLobby);
             } else {
                 console.log("something went wrong sorry :(. ");
-                console.log("Most likely the user is not online because it was not found in the array of online users");
+                console.log("The user is not online because it was not found in the array of online users");
             }
         }
     });

@@ -13,10 +13,8 @@ var allUserCnt = 0;
 // var socket = io("https://chat-rafi.herokuapp.com");
 var socket = io("http://localhost:3000");
 
-// var username = prompt("Enter your username:");
 var username = currentUser.innerText;
 window.document.title = username;
-// currentUser.innerHTML = `user in this tab: <span style="color: rgb(142, 10, 218);">${username}</span>`;
 
 socket.on("connect", () => {
     socket.emit("add-username", username);
@@ -51,10 +49,10 @@ socket.on("got-past-messages", (conversation, fromFillUserListTrueOrFalse) => {
 
 const getPastMessages = (username, recipient, fromFillUserListTrueOrFalse) => {
     socket.emit("get-past-messages", username, recipient, fromFillUserListTrueOrFalse);
-    // console.log("reqest sent");
 };
 
 const loadPastConversations = (conversation, fromFillUserListTrueOrFalse) => {
+    // get all the past messages
     conversation.forEach((msg) => {
         if (msg.recipient === "Lobby" && msg.sender === username) {
             return appendMessageFromLOCALUser(msg.recipient, msg.message);
@@ -70,7 +68,7 @@ const loadPastConversations = (conversation, fromFillUserListTrueOrFalse) => {
 };
 
 const changeUserCounter = (OnlineOfflineUserList) => {
-
+    // change user statistics
     onlineCnt = 0;
     offlineCnt = 0;
     allUserCnt = 0;
@@ -115,7 +113,6 @@ const appendMessageFromONLINEUser = (sender, message, toLobby, fromFillUserListT
     /* "toLobby" variable is needed, because the sender has to be a username. it cannot be "lobby" because then the actual sender 
       would be unknown. this is important, because the "sender" tells the function where to append the message. if it would say "lobby",
       the message would go to lobby but the user who sent it would be unknown */
-    // let theMessage = message + "----" + new Date(Date.now()).toString().substring(0, 24);
     let item = document.createElement("li");
     item.innerHTML = `${sender} -> ${message}`;
 
@@ -127,7 +124,7 @@ const appendMessageFromONLINEUser = (sender, message, toLobby, fromFillUserListT
         // we dont want this on the initial load 
         if (!fromFillUserListTrueOrFalse) {
             if (messageHolder.parentNode.parentNode.style.display == "none") {
-                makeUserUnread(sender);
+                makeUserUnread("Lobby");
             }
         }
 
@@ -146,6 +143,7 @@ const appendMessageFromONLINEUser = (sender, message, toLobby, fromFillUserListT
 };
 
 const makeUserUnread = (sender) => {
+    // get the button where there is a new message and make it unread by changing the calssname
     let allUserButtonsArray = Array.from(allUserButtons.querySelectorAll("button.tablinks"));
     userButtonToChange = allUserButtonsArray.find(button => button.innerHTML === sender);
     if (!(userButtonToChange.className.includes("unread"))) {
@@ -185,6 +183,7 @@ const refreshUserList = (user, connected) => {
 
 // initially fill the user list
 const fillUserList = (OnlineOfflineUserList) => {
+    // fromFillUserListTrueOrFalse variabe is needed because on initial load the unread class should not be applied
     let fromFillUserListTrueOrFalse = true;
     // show the count of all online users
     changeUserCounter(OnlineOfflineUserList);
@@ -207,6 +206,7 @@ const fillUserList = (OnlineOfflineUserList) => {
 };
 
 const openUserChat = (evt, user) => {
+
     // Declare all variables
     var i, tabcontent, tablinks;
     tabcontent = document.getElementsByClassName("tabcontent");
@@ -223,40 +223,21 @@ const openUserChat = (evt, user) => {
     }
 
     // Show the current tab, and add an "active" class to the link that opened the tab
-    if (typeof user === "object") {
+    if (typeof user === "object") { // check if the passed in user is an object, because Lobby is not an object and user.username would not work
         document.getElementById(user.username).style.display = "block";
     } else {
         document.getElementById(user).style.display = "block";
     }
-    if (evt.currentTarget.className.includes("unread")) {
-        evt.currentTarget.className = evt.currentTarget.className.replace(" unread", " online");
+    if (evt.currentTarget.className.includes("unread")) { // if the button already has the unread class do nothing
+        if (evt.currentTarget.innerHTML == "Lobby") { // if the clicked button is the lobby than don't apply the online class
+            evt.currentTarget.className = evt.currentTarget.className.replace(" unread", "");
+        } else {
+            evt.currentTarget.className = evt.currentTarget.className.replace(" unread", " online");
+        }
     }
+
     evt.currentTarget.className += " active";
 
-};
-
-const removeAllUserButtonsExceptLobby = (parent) => {
-    /* search for all the elements with classname "tablinks" (those are the buttons)
-      and iterate over them. if the innerHTML is "Lobby", leave it alone otherwise delete it */
-    parent.querySelectorAll(".tablinks").forEach((userButton) => {
-        if (userButton.innerHTML != "Lobby") userButton.remove();
-    });
-    // if the lobby button is not open when the others are deleted then click on lobby automatically
-    //   if (
-    //     document.querySelector("#default-message-tab").className !=
-    //     "tablinks active"
-    //   )
-    //     document.querySelector("#default-message-tab").className =
-    //       "tablinks active";
-    lobbyButton.click();
-};
-
-const removeAllContentTabsExceptLobby = (parent) => {
-    /* search for all the elements with classname "tabcontent" (those are the contents for the buttons)
-      and iterate over them. if the id is "Lobby", leave it alone otherwise delete it */
-    parent.querySelectorAll(".tabcontent").forEach((messageTab) => {
-        if (messageTab.id != "Lobby") messageTab.remove();
-    });
 };
 
 const createUserTabButton = user => {
@@ -318,8 +299,8 @@ const createUserTabContent = (user) => {
     div.style.display = "none";
 
     allUserButtonContents.appendChild(div); // put the tabs inside the div that holds all of the user messages
-    // add a custom event listener to the newly created form (custom because it is for the choosen person(tab))
 
+    // add a custom event listener to the newly created form 
     addEventListenerToForm(form.id, user.username);
 };
 
@@ -347,152 +328,9 @@ logOutButton.addEventListener("click", () => {
     // socket.disconnected = true;
     socket.disconnect();
 });
-
+// good for debugging
 document.addEventListener("keydown", (e) => {
     if (e.target.matches("input")) return;
     if (e.key === "c") socket.connect();
     if (e.key === "d") socket.disconnect();
 });
-
-// const usernameStyle = (username) => {
-//     return "<span id='username-style'>" + username + ":" + "</span>";
-// }
-
-// const messageStyle = (message) => {
-//     return "<span id='message-style'>" + message + "</span>";
-// }
-
-// const sentAtStyle = (sentAt) => {
-//     return "<span id='sentAt-style'>" + sentAt + "</span>";
-// }
-
-// const üzenetÖsszefűzőFüggvény = (username, message, sentAt) => {
-//     return `<span id='username-style'>${username}:</span><span id='message-style'>${message}</span><span id='sentAt-style'>${sentAt}</span>`;
-// }
-
-// if (sessionStorage.getItem("username")) {
-
-//     window.onload = () => {
-//         user = sessionStorage.getItem("username");
-//         document.getElementById('curr-user').innerHTML = "logged in: " + sessionStorage.getItem("username");
-//         console.log("user" + user + " entered the chat");
-//         document.title = "Chat of " + user;
-//         getAllMessages();
-
-//     }
-
-// } else {
-//     window.location.href = "http://localhost:8000/login_page";
-// }
-
-// function appendMessageDB(username, message, sentAt) {
-
-//     let messageHolder = document.getElementById("message-holder");
-//     let item = document.createElement('li');
-//     // if (username == user) {
-//     //     item.style.textAlign = 'right';
-//     // }
-//     item.innerHTML = üzenetÖsszefűzőFüggvény(username, message, sentAt);
-//     messages.appendChild(item);
-//     messageHolder.scrollTop = messageHolder.scrollHeight;
-//     //window.scrollTo(0, document.body.scrollHeight);
-// }
-
-// const logOutUser = () => {
-//     sessionStorage.clear();
-//     console.log(sessionStorage);
-//     console.log("session storage cleared, user logged out");
-//     window.location.href = "http://localhost:8000/login_page";
-// }
-
-// const myPostMessage = (user, message) => {
-
-//     fetch('http://localhost:8000/post_message', {
-//             method: 'POST',
-//             headers: {
-//                 'Content-Type': 'application/json'
-//             },
-//             body: JSON.stringify({
-//                 username: user,
-//                 message: message
-//             })
-//         }).then(res => {
-//             return res.json();
-//         }).then(data => {
-//             getOneMessage();
-//             console.log(data);
-//         })
-//         .catch(error => console.log(error));
-// }
-
-// const getAllMessages = () => { /// leegyszerusiteni !!!
-
-//     fetch('http://localhost:8000/get_messages')
-//         .then(res => res.json())
-//         .then(data => {
-
-//             for (var i = 0; i < data.length; i++) {
-
-//                 let username = data[i].username;
-//                 let message = data[i].message;
-//                 let sentAt = new Date(data[i].date).toString().substring(0, 24);
-
-//                 let messageHolder = document.getElementById("message-holder");
-//                 let item = document.createElement('li');
-//                 if (username == user) {
-//                     item.style.textAlign = 'right';
-//                 }
-//                 item.innerHTML = usernameStyle(username) + " " + messageStyle(message) + " " + sentAtStyle(sentAt);
-//                 messages.appendChild(item);
-//                 messageHolder.scrollTop = messageHolder.scrollHeight;
-//                 //window.scrollTo(0, document.body.scrollHeight);
-//             }
-//         })
-//         .catch(error => console.log(error));
-
-//     console.log("got all messages")
-// }
-
-// const getOneMessage = () => { // itt is visszajön az összes üzenet, nem ideális
-
-//     fetch('http://localhost:8000/get_messages')
-//         .then(res => res.json())
-//         .then(data => {
-//             console.log("message came back");
-
-//             let username = data[data.length - 1].username;
-//             let message = data[data.length - 1].message;
-//             let sentAt = new Date(data[data.length - 1].date).toString().substring(0, 24);
-
-//             console.log("username: " + username + ";" + " " + "message: " + message + " " + "sentAt: " + sentAt + ";");
-
-//             let messageHolder = document.getElementById("message-holder");
-//             var item = document.createElement('li');
-//             if (username == user) {
-//                 item.style.textAlign = 'right';
-//             }
-//             item.innerHTML = usernameStyle(username) + " " + messageStyle(message) + " " + sentAtStyle(sentAt);
-//             messages.appendChild(item);
-//             messageHolder.scrollTop = messageHolder.scrollHeight;
-
-//         })
-//         .catch(error => console.log(error));
-
-// }
-
-// const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }; // opciók a showtime fügvényhez
-
-// function showTime(givenTime) {
-//     var timeNow = new Date(givenTime);
-//     var hours = timeNow.getHours();
-//     var minutes = timeNow.getMinutes();
-//     var seconds = timeNow.getSeconds();
-//     //var timeString = "" + ((hours > 12) ? hours - 12 : hours);
-//     var timeString = "" + hours;
-//     timeString += ((minutes < 10) ? ":0" : ":") + minutes;
-//     timeString += ((seconds < 10) ? ":0" : ":") + seconds;
-//     //timeString += (hours >= 12) ? " P.M." : " A.M.";
-//     //document.htmlClock.timeField.value = timeString;
-//     //timerID = setTimeout("showTime()", 1000);
-//     return timeString;
-// }

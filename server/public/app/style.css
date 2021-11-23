@@ -1,7 +1,5 @@
 body {
     background-image: url('chatbg.jpg');
-    /* background-position: center; */
-    /* background-repeat: no-repeat; */
     background-size: cover;
 }
 
@@ -9,11 +7,9 @@ div.sign-out-field {
     text-align: center;
 }
 
-
 .nice-yellow {
     font-size: 25px;
     border: solid 2px black;
-    /* width: 20%; */
     background: #ffae00;
     margin-left: 20%;
     margin-right: 20%;
@@ -64,8 +60,6 @@ div.sign-out-field {
     margin-right: auto;
 
 }
-
-
 
 .message-holder {
 
@@ -208,6 +202,22 @@ body {
     cursor: pointer;
     transition: 0.3s;
     font-size: 17px;
+}
+
+
+.users-tabs button.unread {
+    display: block;
+    background-color: rgb(231, 218, 28);
+    color: black;
+    padding: 22px 16px;
+    width: 100%;
+    border: black solid 2px;
+    outline: none;
+    font-weight: bold;
+    text-align: left;
+    cursor: pointer;
+    transition: 0.3s;
+    font-size: 22px;
 }
 
 .users-tabs button.online.unread {
