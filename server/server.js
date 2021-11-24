@@ -14,6 +14,7 @@ const io = require("socket.io")(server, {
 });
 const PORT = process.env.PORT || 3000;
 const uri = process.env.DB_CONNECTION;
+// variable to store the session in mongoDB
 const store = new MongoDBStore({
     uri: uri,
     collection: "sessions"
@@ -22,7 +23,6 @@ const userModel = require("./models/UserModel");
 const messageModel = require("./models/MessageModel");
 
 // manage session
-
 const sessionMiddleware = session({
     cookie: {
         maxAge: 60000
@@ -387,7 +387,7 @@ io.on("connection", (socket) => {
             toLobby = false; // message isn't going to lobby
             const sockets = await io.fetchSockets();
             let sendMessageToThisSocket = sockets.find((userObj) => userObj.username === recipient);
-            // but instead to someone directly
+            // but instead to someone directly 
 
             // check the socket is found at all by recipient name
             if (sendMessageToThisSocket != undefined) { // if it is then send message to the id of the socket (its own room)
