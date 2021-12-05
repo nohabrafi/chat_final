@@ -7,6 +7,7 @@ Features:
 - Send messages to individual users
 - Login and register with password encryption
 - Every message and user is stored in MongoDB
+- Simple notification when someone sends a message and this user is not in focus (when the user tab is not opened, the tab button changes style)
 
 Das ist ein in dem Browser implementiertes Chat-App. Das Ziel des Projektes ist es, den prinzipellen Weg der Entwicklung eines Programmes kennenzulernen. 
 Das Endprodukt wird, nicht unbedingt professinell sein, aber am Ende werde ich sicher viel gelernt haben. Technologien: node.js, express.js, socket.io, mongoDB
