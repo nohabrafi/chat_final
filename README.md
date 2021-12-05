@@ -18,4 +18,4 @@ Mermale:
 - Es ist möglich privat Nachrichten an bestimmten User zu senden
 - Man kann sich registrieren und anmelden, das Passwort ist verschlüsselt
 - Alle Nachrichten und Userdaten sind in MongoDB gespeichert
-- Wenn die Tab eines Users, der gerade eine Nachricht gesendet hat, nicht geöffnet ist, ändert sich der Stil der entsprechenden Schaltfläche - als Benachrichtigung.   
+- Wenn die Tab eines Users, der gerade eine Nachricht gesendet hat, nicht geöffnet ist, ändert sich der Stil der entsprechenden Schaltfläche als Benachrichtigung.   
