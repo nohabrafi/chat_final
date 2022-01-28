@@ -10,7 +10,7 @@
         #sign-up-button {
             font-size: 25px;
         }
-
+        
         body {
             background-image: url('https://chat-rafi.herokuapp.com/login/backg.jpg');
             /* background-image: url('http://localhost:3000/login/backg.jpg'); */
@@ -18,11 +18,11 @@
             background-attachment: fixed;
             background-size: cover;
         }
-
+        
         form {
             display: table;
         }
-
+        
         div#login-holder {
             display: flex;
             justify-content: center;
@@ -40,7 +40,7 @@
             /* transition: opacity 0.6s;
             opacity: 0.5; */
         }
-
+        
         div#login-holder:hover {
             display: flex;
             justify-content: center;
@@ -58,13 +58,13 @@
             /* transition: opacity 0.6s;
             opacity: 1; */
         }
-
+        
         label,
         input {
             margin-bottom: 10px;
             font-size: 25px;
         }
-
+        
         label {
             padding-right: 10px;
             background: radial-gradient(circle, rgb(192, 3, 3) 0%, rgb(238, 143, 0) 100%);
@@ -74,7 +74,7 @@
             font-size: 30px;
             font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
         }
-
+        
         input.nice {
             display: inline-block;
             padding: 0.5em 3em;
@@ -90,12 +90,12 @@
             transition: all 0.15s;
             background: rgba(255, 255, 255, 0);
         }
-
+        
         input.nice:hover {
             color: #ff0000;
             border-color: #ff0000;
         }
-
+        
         input.nice:active {
             color: #9900ff;
             border-color: #9900ff;
@@ -115,11 +115,13 @@
                 <input type="password" name="password" id="password" required>
             </div>
             <div>
-                <input class="nice" type="submit" value="Lolgin!">
+                <input class="nice" type="submit" value="Login!">
             </div>
             <% if (message){ %>
-            <p style="font-size: 35px;"><%= message %></p>
-            <% } %>
+                <p style="font-size: 35px;">
+                    <%= message %>
+                </p>
+                <% } %>
         </form>
         <div>
             <form action="/signup" method="GET">
