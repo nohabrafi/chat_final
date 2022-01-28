@@ -13,7 +13,7 @@ Features:
 Das ist ein in dem Browser implementiertes Chat-App. Das Ziel des Projektes ist es, den prinzipellen Weg der Entwicklung eines Programmes kennenzulernen. 
 Das Endprodukt wird, nicht unbedingt professinell sein, aber am Ende werde ich sicher viel gelernt haben. Technologien: node.js, express.js, socket.io, mongoDB.
 
-Mermale:
+Merkmale:
 - Es gibt einen "Lobby" wo alle User Nachrichten senden können
 - Es ist möglich privat Nachrichten an bestimmten User zu senden
 - Man kann sich registrieren und anmelden, das Passwort ist verschlüsselt
