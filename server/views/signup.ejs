@@ -8,17 +8,17 @@
     <title>SIGNUP to Chat</title>
     <style>
         body {
-            background-image: url('https://chat-rafi.herokuapp.com/login/backg.jpg');
-            /* background-image: url('http://localhost:3000/login/backg.jpg'); */
+            /* background-image: url('https://chat-rafi.herokuapp.com/login/backg.jpg'); */
+            background-image: url('http://localhost:3000/login/backg.jpg');
             background-repeat: no-repeat;
             background-attachment: fixed;
             background-size: cover;
         }
-
+        
         form {
             display: table;
         }
-
+        
         div#login-holder {
             display: flex;
             justify-content: center;
@@ -34,7 +34,7 @@
             align-items: center;
             border-radius: 30px;
         }
-
+        
         div#login-holder:hover {
             display: flex;
             justify-content: center;
@@ -50,14 +50,14 @@
             align-items: center;
             border-radius: 30px;
         }
-
+        
         label,
         input {
             display: table-cell;
             margin-bottom: 10px;
             font-size: 25px;
         }
-
+        
         label {
             display: block;
             padding-right: 10px;
@@ -65,7 +65,7 @@
             font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
             align-items: center;
         }
-
+        
         input.nice,
         button.nice {
             display: inline-block;
@@ -82,13 +82,13 @@
             transition: all 0.15s;
             background: rgba(255, 255, 255, 0);
         }
-
+        
         input.nice:hover,
         button.nice:hover {
             color: #ff0000;
             border-color: #ff0000;
         }
-
+        
         input.nice:active,
         button.nice:active {
             color: #9900ff;
@@ -117,11 +117,13 @@
                 <input type="password" name="re_password" id="re_password" required>
             </div>
             <% if (message){ %>
-            <p style="font-size: 35px;"><%= message %></p>
-            <% } %>
-            <div>
-                <input class="nice" type="submit" value="Signup!">
-            </div>
+                <p style="font-size: 35px;">
+                    <%= message %>
+                </p>
+                <% } %>
+                    <div>
+                        <input class="nice" type="submit" value="Signup!">
+                    </div>
         </form>
 
         <form action="/login" method="GET">

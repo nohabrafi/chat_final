@@ -12,15 +12,24 @@ const io = require("socket.io")(server, {
         origin: "*"
     }
 });
+
+const userModel = require("./models/UserModel");
+const messageModel = require("./models/MessageModel");
+
 const PORT = process.env.PORT || 3000;
 const uri = process.env.DB_CONNECTION;
+
+//connect to DB
+mongoose.connect(uri).then(() => console.log("Connected to MongoDB")).catch((error) => console.error(error));
+
+// server listen
+server.listen(PORT, () => console.log(`Server listening on port ${process.env.PORT}`));
+
 // variable to store the session in mongoDB
 const store = new MongoDBStore({
     uri: uri,
     collection: "sessions"
 });
-const userModel = require("./models/UserModel");
-const messageModel = require("./models/MessageModel");
 
 // manage session
 const sessionMiddleware = session({
@@ -46,11 +55,12 @@ app.use(express.urlencoded({
     extended: true
 }));
 
+// register middleware in Express
 app.use(sessionMiddleware);
-
+// register middleware in Socket.IO
 io.use((socket, next) => {
     sessionMiddleware(socket.request, {}, next);
-})
+});
 
 // check if user is authenticated
 const isAuthenticated = (req, res, next) => {
@@ -70,11 +80,7 @@ const isNotAuthenticated = (req, res, next) => {
     }
 };
 
-//connect to DB
-mongoose.connect(uri).then(() => console.log("Connected to MongoDB")).catch((error) => console.error(error));
-
-server.listen(PORT, () => console.log(`Server listening on port ${process.env.PORT}`));
-
+// ROUTES START
 app.get("/", isAuthenticated, (req, res) => {
     res.render("app", {
         authenticatedUser: req.session.authenticatedUser
@@ -93,7 +99,7 @@ app.get("/signup", isNotAuthenticated, (req, res) => {
     });
 });
 
-app.post("/signup", async (req, res) => { // get the data from the request body
+app.post("/signup", async(req, res) => { // get the data from the request body
     const {
         username,
         email,
@@ -157,7 +163,7 @@ app.get("/login", isNotAuthenticated, (req, res) => {
     });
 });
 
-app.post("/login", async (req, res) => {
+app.post("/login", async(req, res) => {
     const {
         username,
         password
@@ -201,10 +207,11 @@ app.post("/login", async (req, res) => {
     console.log(`Authentication succesfull for user ${user.username}`);
     res.redirect("/"); // redirect to main page
 });
+// ROUTES END
 
 io.on("connection", (socket) => {
 
-    socket.on("add-username", async (user) => {
+    socket.on("add-username", async(user) => {
 
         // clear the lists because it is easier than modifiing them. atleast for now
         everyRegisteredUser = [];
@@ -279,7 +286,7 @@ io.on("connection", (socket) => {
         }
     });
 
-    socket.on("get-past-messages", async (user, recipient, fromFillUserListTrueOrFalse) => {
+    socket.on("get-past-messages", async(user, recipient, fromFillUserListTrueOrFalse) => {
 
         try {
 
@@ -363,7 +370,7 @@ io.on("connection", (socket) => {
 
     });
 
-    socket.on("send-message", async (sender, recipient, message) => {
+    socket.on("send-message", async(sender, recipient, message) => {
 
         let toLobby = undefined; // variable to say if the message goes  to lobby or not
 
