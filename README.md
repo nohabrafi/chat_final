@@ -40,6 +40,6 @@ Private message to user:
 
 ![private message](https://user-images.githubusercontent.com/93218724/159505601-5a80ec72-0c3a-44d9-918f-93107123e1e3.png)
 
-New messages appear differently:
+New messages:
 
 ![newmessage](https://user-images.githubusercontent.com/93218724/159505611-f23aeac6-85ce-4d60-8b7d-0214f908635a.png)
