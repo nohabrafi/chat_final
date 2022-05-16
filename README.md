@@ -19,7 +19,9 @@ Merkmale:
 - Man kann sich registrieren und anmelden, das Passwort ist verschlüsselt
 - Alle Nachrichten und Userdaten sind in MongoDB gespeichert
 - Userschaltfläche schaut anders aus wenn es eine neue Nachricht gibt   
- 
+
+Link (first start may take longer): https://chat-rafi.herokuapp.com/.
+
 Login:
 
 ![login](https://user-images.githubusercontent.com/93218724/159505411-a5445041-6400-49a8-960e-4acc9edfa04d.png)
